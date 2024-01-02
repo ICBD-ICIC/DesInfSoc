@@ -9,7 +9,7 @@ with open("config.json", "r") as config_file:
     config = json.load(config_file)
 
 COMMUNICATION_STYLE_RESULTS = 'outputs/personality2/symanto_communication_style_{0}.csv'.format(time.time())
-USERS_MESSAGES_FILE = 'dataset/network_users_tweets_to_analyze.csv'
+USERS_MESSAGES_FILE = 'dataset/network_users_tweets_to_analyze_communication_style.csv'
 SYMANTO_COMMUNICATION_STYLE_URL = "https://communication-style.p.rapidapi.com/communication"
 
 
@@ -50,7 +50,7 @@ def get_symanto_communication_style(users):
 
 user_messages = pd.read_csv(USERS_MESSAGES_FILE)
 results_rows = []
-start = 25024
+start = 0
 steps = 32
 end = start + steps
 

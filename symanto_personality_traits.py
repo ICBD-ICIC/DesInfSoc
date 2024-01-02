@@ -9,7 +9,7 @@ with open("config.json", "r") as config_file:
     config = json.load(config_file)
 
 PERSONALITY_TRAITS_RESULTS = 'outputs/personality/symanto_personality_traits_{0}.csv'.format(time.time())
-USERS_MESSAGES_FILE = 'dataset/network_users_tweets_to_analyze.csv'
+USERS_MESSAGES_FILE = 'dataset/network_users_tweets_to_analyze_personality_traits.csv'
 SYMANTO_PERSONALITY_TRAITS_URL = "https://personality-traits.p.rapidapi.com/personality"
 
 
@@ -37,7 +37,7 @@ def get_symanto_personality_traits(users):
     error_streak = 0
     sleep_time = 0
 
-    while response.status_code != 200 and error_streak < 3:
+    while response.status_code != 200 and error_streak < 1:
         print(' ---> Error steak: {0}'.format(error_streak))
         print(' ---> Error {0} - {1}'.format(response.status_code, response.reason))
         error_streak += 1
@@ -50,7 +50,7 @@ def get_symanto_personality_traits(users):
 
 user_messages = pd.read_csv(USERS_MESSAGES_FILE)
 results_rows = []
-start = 24704
+start = 0
 steps = 32
 end = start + steps
 
