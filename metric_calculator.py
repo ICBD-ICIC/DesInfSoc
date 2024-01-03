@@ -10,18 +10,21 @@ from nltk.stem.snowball import SnowballStemmer
 import re
 import spacy
 from transformers import pipeline
+import time
 
 pd.set_option("max_colwidth", 200)
 pd.set_option("display.max_columns", None)
 
 warnings.filterwarnings('ignore')
 
-DATASET_FILE = 'outputs/india-election-tweets-formatted.csv'
+DATASET_FILE = 'dataset/india-election-tweets-formatted.csv'
 MORAL_FOUNDATION_DICTIONARY = 'dictionaries/mfd.tsv'
 POLARIZATION_WORDS_DICTIONARY = 'dictionaries/lang_online_polarization_dict.csv'
 ABUSIVE_WORDS_DICTIONARY = 'dictionaries/abuseLexicon.xlsx'
 VALENCE_WORDS_DICTIONARY = 'dictionaries/anew_val_polarity.xlsx'
-OUTPUT_FILE = 'outputs/itrust_metrics.csv'
+OUTPUT_FILE = 'outputs/itrust/itrust_metrics_{0}.csv'.format(time.time())
+START = 0
+END = 10
 
 
 def remove_text(df, text_column):
@@ -45,7 +48,7 @@ def remove_text(df, text_column):
     return df
 
 
-df = pd.read_csv(DATASET_FILE)
+df = pd.read_csv(DATASET_FILE)[START:END]
 
 df['stem_text'] = df.text.str.replace("amp;", "").str.replace('\n', '').str.replace("  ", "").str.strip().str.lower()
 
@@ -91,13 +94,9 @@ df['positive_words_ratio'] = df['positive_words'].str.split().map(len) / df['ste
 
 mfd = pd.read_csv(MORAL_FOUNDATION_DICTIONARY, sep='\t')
 
-print(len(set(mfd.Word.values)))
 mfd.Word = mfd.Word.apply(lambda x: stemmer.stem(str(x).lower()))
-print(len(set(mfd.Word.values)))
 
-print(mfd.shape)
 mfd = mfd.drop_duplicates()
-print(mfd.shape)
 
 for c in mfd.Category.unique():
     words_mfd = set(mfd[mfd.Category == c]['Word'].values)
@@ -173,4 +172,3 @@ df['CF_ethos'] = conf
 df['CF_ethos'] = df['CF_ethos'].round(4)
 
 df.to_csv(OUTPUT_FILE)
-print(df)
