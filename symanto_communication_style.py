@@ -50,8 +50,9 @@ def get_symanto_communication_style(users):
 
 user_messages = pd.read_csv(USERS_MESSAGES_FILE)
 results_rows = []
-start = 224
+start = 25248
 steps = 32
+# total 26066
 end = start + steps
 
 while len(user_messages[start:end] != 0):

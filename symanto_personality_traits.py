@@ -50,9 +50,10 @@ def get_symanto_personality_traits(users):
 
 user_messages = pd.read_csv(USERS_MESSAGES_FILE)
 results_rows = []
-start = 224
+start = 25248
 steps = 32
 end = start + steps
+# total 26135
 
 while len(user_messages[start:end] != 0):
     try:
@@ -77,4 +78,5 @@ while len(user_messages[start:end] != 0):
 # Save results
 results = pd.DataFrame(results_rows)
 results.to_csv(PERSONALITY_TRAITS_RESULTS, index=False)
+print(user_messages)
 winsound.Beep(440, 1000)
