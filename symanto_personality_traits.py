@@ -50,7 +50,7 @@ def get_symanto_personality_traits(users):
 
 user_messages = pd.read_csv(USERS_MESSAGES_FILE)
 results_rows = []
-start = 25248
+start = 26144
 steps = 32
 end = start + steps
 # total 26135
