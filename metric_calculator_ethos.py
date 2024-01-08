@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered-clean.csv'
 
 start = 0
-steps = 500000
+steps = 100
 end = start + steps
 
 all_data = pd.read_csv(DATASET_FILE)
@@ -27,6 +27,8 @@ model_path = "eevvgg/Stance-Tw"
 cls_task = pipeline(task="text-classification", model=model_path, tokenizer=model_path)  # , device=0
 
 while len(all_data[start:end]) != 0:
+    time_start = time.time()
+
     df = all_data[start:end]
 
     sequence = df.text.astype('str').tolist()
@@ -42,3 +44,5 @@ while len(all_data[start:end]) != 0:
     df.to_csv(output_file, index=False)
     start = end
     end = start + steps
+
+    print('Seconds to run {0} rows: {1}'.format(end-start, time.time()-time_start))

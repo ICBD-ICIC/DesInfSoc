@@ -36,17 +36,4 @@ df['emotion2'] = [x['label'] for x in result]
 df['cf_emotion2'] = [x['score'] for x in result]
 df['cf_emotion2'] = df['cf_emotion2'].round(4)
 
-tokenizer_kwargs = {'padding': True, 'truncation': True, 'max_length': 512}
-
-model_path = "eevvgg/Stance-Tw"
-cls_task = pipeline(task="text-classification", model=model_path, tokenizer=model_path)  # , device=0
-result = cls_task(sequence, **tokenizer_kwargs)
-
-conf = list(x['score'] for x in result)
-labels = list(i['label'] for i in result)
-
-df['ethos'] = labels
-df['CF_ethos'] = conf
-df['CF_ethos'] = df['CF_ethos'].round(4)
-
 df.to_csv(OUTPUT_FILE)
