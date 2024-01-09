@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import winsound
 
-with open("config.json", "r") as config_file:
+with open("../config.json", "r") as config_file:
     config = json.load(config_file)
 
 BIG_FIVE_RESULTS = 'outputs/personality/symanto_big_five_{0}.csv'.format(time.time())

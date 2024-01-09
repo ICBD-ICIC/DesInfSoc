@@ -5,12 +5,12 @@ import pandas as pd
 import requests
 import winsound
 
-with open("config.json", "r") as config_file:
+with open("../config.json", "r") as config_file:
     config = json.load(config_file)
 
-PERSONALITY_TRAITS_RESULTS = 'outputs/personality/symanto_personality_traits_{0}.csv'.format(time.time())
-USERS_MESSAGES_FILE = 'dataset/network_users_tweets_to_analyze_personality_traits.csv'
-SYMANTO_PERSONALITY_TRAITS_URL = "https://personality-traits.p.rapidapi.com/personality"
+COMMUNICATION_STYLE_RESULTS = 'outputs/personality2/symanto_communication_style_{0}.csv'.format(time.time())
+USERS_MESSAGES_FILE = 'dataset/network_users_tweets_to_analyze_communication_style.csv'
+SYMANTO_COMMUNICATION_STYLE_URL = "https://communication-style.p.rapidapi.com/communication"
 
 
 def payload(users):
@@ -25,15 +25,15 @@ def payload(users):
     return payload
 
 
-def get_symanto_personality_traits(users):
+def get_symanto_communication_style(users):
     headers = {
         "content-type": "application/json",
         "Accept": "application/json",
         "X-RapidAPI-Key": config["rapidAPI-Key"],
-        "X-RapidAPI-Host": "personality-traits.p.rapidapi.com"
+        "X-RapidAPI-Host": "communication-style.p.rapidapi.com"
     }
     querystring = {"all": "true"}
-    response = requests.post(SYMANTO_PERSONALITY_TRAITS_URL, json=payload(users), headers=headers, params=querystring)
+    response = requests.post(SYMANTO_COMMUNICATION_STYLE_URL, json=payload(users), headers=headers, params=querystring)
     error_streak = 0
     sleep_time = 0
 
@@ -43,29 +43,30 @@ def get_symanto_personality_traits(users):
         error_streak += 1
         sleep_time += 1
         time.sleep(sleep_time)
-        response = requests.post(SYMANTO_PERSONALITY_TRAITS_URL, json=payload(users), headers=headers, params=querystring)
+        response = requests.post(SYMANTO_COMMUNICATION_STYLE_URL, json=payload(users), headers=headers, params=querystring)
 
     return response
 
 
 user_messages = pd.read_csv(USERS_MESSAGES_FILE)
 results_rows = []
-start = 26144
+start = 26080
 steps = 32
+# total 26066
 end = start + steps
-# total 26135
 
 while len(user_messages[start:end] != 0):
     try:
         print('Processing user messages[{0}:{1}]'.format(start, end))
-        results = get_symanto_personality_traits(user_messages[start:end])
+        results = get_symanto_communication_style(user_messages[start:end])
         for result in results.json():
             predictions = result['predictions']
             results_rows.append({'id': result['id'],
                                  '{0}'.format(predictions[0]['prediction']): predictions[0]['probability'],
-                                 '{0}'.format(predictions[1]['prediction']): predictions[1]['probability']})
+                                 '{0}'.format(predictions[1]['prediction']): predictions[1]['probability'],
+                                 '{0}'.format(predictions[2]['prediction']): predictions[2]['probability'],
+                                 '{0}'.format(predictions[3]['prediction']): predictions[3]['probability']})
         print('Done processing user messages[{0}:{1}]'.format(start, end))
-        time.sleep(1)
     except Exception as e:
         print(e)
         print('Start: {0}'.format(start))
@@ -77,6 +78,5 @@ while len(user_messages[start:end] != 0):
 
 # Save results
 results = pd.DataFrame(results_rows)
-results.to_csv(PERSONALITY_TRAITS_RESULTS, index=False)
-print(user_messages)
+results.to_csv(COMMUNICATION_STYLE_RESULTS, index=False)
 winsound.Beep(440, 1000)

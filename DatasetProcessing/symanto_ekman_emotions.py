@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import winsound
 
-with open("config.json", "r") as config_file:
+with open("../config.json", "r") as config_file:
     config = json.load(config_file)
 
 EKMAN_EMOTIONS_RESULTS = 'outputs/emotions/symanto_ekman_emotions_{0}.csv'.format(time.time())
