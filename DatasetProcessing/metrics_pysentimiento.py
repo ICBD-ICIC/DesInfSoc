@@ -1,13 +1,10 @@
 import pandas as pd
-import warnings
 import time
 from pysentimiento import create_analyzer
 import transformers
 
 pd.set_option("max_colwidth", 200)
 pd.set_option("display.max_columns", None)
-
-warnings.filterwarnings('ignore')
 
 DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered-clean.csv'
 
