@@ -10,7 +10,7 @@ start = 0
 steps = 10000
 end = start + steps
 
-interval_init = INTERVAL_SIZE *  int(sys.argv[1])
+interval_init = INTERVAL_SIZE * int(sys.argv[1])
 interval_end = interval_init + INTERVAL_SIZE
 
 all_data = pd.read_csv(DATASET_FILE).iloc[interval_init:interval_end]
@@ -42,6 +42,4 @@ while len(all_data[start:end]) != 0:
     start = end
     end = start + steps
 
-
     print('Seconds to run {0} rows: {1}'.format(end - start, time.time() - time_start))
-
