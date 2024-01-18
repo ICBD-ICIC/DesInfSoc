@@ -1,8 +1,8 @@
 import os
 import pandas as pd
 
-FOLDER_PATH = '../outputs/emotions'
-RESULT_FILE = '../outputs/emotions/emotions.csv'
+FOLDER_PATH = '../outputs/itrust/mfd_binary'
+RESULT_FILE = '../outputs/mfd_binary.csv'
 
 file_list = os.listdir(FOLDER_PATH)
 
