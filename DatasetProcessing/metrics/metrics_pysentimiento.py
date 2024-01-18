@@ -6,7 +6,7 @@ from pysentimiento.preprocessing import preprocess_tweet
 import transformers
 
 DATASET_FILE = 'datasets/india-election-tweets-formatted-filtered-clean.csv'
-INTERVAL_SIZE = 500000
+INTERVAL_SIZE = 250000
 
 start = 0
 steps = 10000
@@ -20,14 +20,14 @@ all_data = all_data.loc[:, ~all_data.columns.str.contains('^Unnamed')]  # remove
 all_data = all_data.astype({'stem_text': str})
 
 transformers.logging.set_verbosity(transformers.logging.ERROR)
-analyzer = create_analyzer(task="sentiment", lang="es")
+analyzer = create_analyzer(task="sentiment", lang="en")
 
 while len(all_data[start:end]) != 0:
     time_start = time.time()
 
     df = all_data[start:end]
 
-    sequence = list(map(preprocess_tweet, df.text.astype('str').tolist()))
+    sequence = list(map(lambda text: preprocess_tweet(text, lang="en"), df.text.astype('str').tolist()))
     results = analyzer.predict(sequence)
 
     sentiments = pd.DataFrame(columns=['sentiment-positive', 'sentiment-negative', 'sentiment-neutral'])

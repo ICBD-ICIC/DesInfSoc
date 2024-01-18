@@ -1,4 +1,4 @@
 DatasetProcessing/dataset/
 DatasetProcessing/outputs/
 /.idea/
-DatasetProcessing/config.json
+DatasetProcessing/metrics/config.json
