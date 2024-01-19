@@ -40,8 +40,7 @@ EMOTIONS = pd.read_csv('../dataset/itrust/emotions.csv').set_index('id')
 EMOTIONS_CATEGORIES = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
 #                       0           1       2       3       4           5           6
 
-# TODO: change to final complete file
-sentiments = pd.read_csv('../outputs/sentiments/itrust_metrics_sentiments_interval_0-250000_1705496838.877036.csv').set_index('id')
+sentiments = pd.read_csv('../dataset/itrust/sentiments.csv').set_index('id')
 SENTIMENTS = sentiments.loc[:, ~sentiments.columns.str.contains('^Unnamed')]  # remove previous index
 SENTIMENTS_CATEGORIES = ['sentiment-positive', 'sentiment-negative', 'sentiment-neutral']
 #                               0                        1                   2

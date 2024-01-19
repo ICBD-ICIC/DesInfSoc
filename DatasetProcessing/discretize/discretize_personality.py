@@ -1,6 +1,6 @@
 import pandas as pd
 
-NETWORK_USERS_BY_ACTIVITY = '../dataset/intermediate/network_users_by_activity.csv'
+NETWORK_USERS_BY_ACTIVITY = '../dataset/network_users_by_activity.csv'
 PERSONALITY_TRAITS = '../dataset/personality/personality_traits_active_network_users.csv'
 COMMUNICATION_STYLE = '../dataset/personality/communication_style_active_network_users.csv'
 BIG_FIVE = '../dataset/personality/big_five_active_network_users.csv'

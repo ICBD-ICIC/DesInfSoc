@@ -4,13 +4,16 @@ import pandas as pd
 #### GET NETWORK USERS WITH AT LEAST 20 TWEETS NO RTs #####
 ###########################################################
 
-NETWORK_USERS_TWEETS_FILE = 'dataset/all-languages/network_users_tweets.csv'
-NETWORK_USERS_BY_ACTIVITY = 'dataset/network_users_by_activity.csv'
-NETWORK_USERS_TWEETS_BY_ACTIVITY = 'outputs/network_users_tweets_by_activity.csv'
+# NETWORK_USERS_TWEETS_FILE = 'dataset/all-languages/network_users_tweets.csv'
+NETWORK_USERS_BY_ACTIVITY = '../dataset/intermediate/network_users_by_activity.csv'
+# NETWORK_USERS_TWEETS_BY_ACTIVITY = 'outputs/network_users_tweets_by_activity.csv'
 
 # network_users_tweets = pd.read_csv(NETWORK_USERS_TWEETS_FILE)
 network_users_by_activity = pd.read_csv(NETWORK_USERS_BY_ACTIVITY)
-network_users_by_activity = network_users_by_activity.where(network_users_by_activity['tweet_amount'] >= 20)
+network_users_by_activity = network_users_by_activity.drop(network_users_by_activity[network_users_by_activity['tweet_amount'] < 20].index)
+
+network_users_by_activity.to_csv('../dataset/network_active_users.csv')
+
 #
 # network_users_tweets_by_activity = network_users_by_activity.set_index('id').join(network_users_tweets.set_index('id'),
 #                                                                                   how='inner')
@@ -54,15 +57,15 @@ network_users_by_activity = network_users_by_activity.where(network_users_by_act
 #### GET REMAINING USERS TO ANALYZE AND FILTER RESULTS - COMMUNICATION STYLE ####
 #################################################################################
 
-OLD_COMMUNICATION_STYLE = 'outputs/personality-old/symanto_communication_style_1703782782.6915822.csv'
-NEW_COMMUNICATION_STYLE = 'outputs/personality/symanto_communication_style.csv'
-NETWORK_USERS_TWEETS_TO_ANALYZE = 'dataset/network_users_tweets_to_analyze_communication_style.csv'
-
-communication_style = pd.read_csv(OLD_COMMUNICATION_STYLE)
-communication_style = communication_style.loc[communication_style['id'].isin(network_users_by_activity['id']), :]
-communication_style.to_csv(NEW_COMMUNICATION_STYLE, index=False)
-
-communication_style = pd.read_csv(NEW_COMMUNICATION_STYLE)
-all_users = pd.read_csv(NETWORK_USERS_TWEETS_BY_ACTIVITY)
-network_user_tweets_to_analyze = all_users.loc[~all_users['id'].isin(communication_style['id']), :]
-network_user_tweets_to_analyze.to_csv(NETWORK_USERS_TWEETS_TO_ANALYZE)
+# OLD_COMMUNICATION_STYLE = 'outputs/personality-old/symanto_communication_style_1703782782.6915822.csv'
+# NEW_COMMUNICATION_STYLE = 'outputs/personality/symanto_communication_style.csv'
+# NETWORK_USERS_TWEETS_TO_ANALYZE = 'dataset/network_users_tweets_to_analyze_communication_style.csv'
+#
+# communication_style = pd.read_csv(OLD_COMMUNICATION_STYLE)
+# communication_style = communication_style.loc[communication_style['id'].isin(network_users_by_activity['id']), :]
+# communication_style.to_csv(NEW_COMMUNICATION_STYLE, index=False)
+#
+# communication_style = pd.read_csv(NEW_COMMUNICATION_STYLE)
+# all_users = pd.read_csv(NETWORK_USERS_TWEETS_BY_ACTIVITY)
+# network_user_tweets_to_analyze = all_users.loc[~all_users['id'].isin(communication_style['id']), :]
+# network_user_tweets_to_analyze.to_csv(NETWORK_USERS_TWEETS_TO_ANALYZE)
