@@ -1,22 +1,22 @@
 import pandas as pd
 from scipy.stats import norm
 
-# ALL_TWEETS = '../dataset/india-election-tweets-formatted-filtered-clean.csv'
-ALL_TWEETS = '../outputs/test.csv'
+# # ALL_TWEETS = '../dataset/india-election-tweets-formatted-filtered-clean.csv'
+# ALL_TWEETS = '../outputs/test.csv'
 
-ABUSIVE = pd.read_csv('../dataset/itrust/abusive.csv').set_index('id')
+ABUSIVE = pd.read_csv('dataset/itrust/abusive.csv').set_index('id')
 ABUSIVE_AMOUNT_MEAN = ABUSIVE['abusive_words_n'].mean()
 ABUSIVE_AMOUNT_DEVIATION = ABUSIVE['abusive_words_n'].std()
 ABUSIVE_RATIO_MEAN = ABUSIVE['abusive_words_ratio'].mean()
 ABUSIVE_RATIO_DEVIATION = ABUSIVE['abusive_words_ratio'].std()
 
-POLARIZATION = pd.read_csv('../dataset/itrust/polarization.csv').set_index('id')
+POLARIZATION = pd.read_csv('dataset/itrust/polarization.csv').set_index('id')
 POLARIZATION_AMOUNT_MEAN = POLARIZATION['polar_words_n'].mean()
 POLARIZATION_AMOUNT_DEVIATION = POLARIZATION['polar_words_n'].std()
 POLARIZATION_RATIO_MEAN = POLARIZATION['polar_words_ratio'].mean()
 POLARIZATION_RATIO_DEVIATION = POLARIZATION['polar_words_ratio'].std()
 
-MFD = pd.read_csv('../dataset/itrust/mfd_binary.csv').set_index('id')
+MFD = pd.read_csv('dataset/itrust/mfd_binary.csv').set_index('id')
 MFD_VICE_AMOUNT_MEAN = MFD['vice_n'].mean()
 MFD_VICE_AMOUNT_DEVIATION = MFD['vice_n'].std()
 MFD_VICE_RATIO_MEAN = MFD['vice_ratio'].mean()
@@ -26,7 +26,7 @@ MFD_VIRTUE_AMOUNT_DEVIATION = MFD['virtue_n'].std()
 MFD_VIRTUE_RATIO_MEAN = MFD['virtue_ratio'].mean()
 MFD_VIRTUE_RATIO_DEVIATION = MFD['virtue_ratio'].std()
 
-VALENCE = pd.read_csv('../dataset/itrust/valence.csv').set_index('id')
+VALENCE = pd.read_csv('dataset/itrust/valence.csv').set_index('id')
 VALENCE_POSITIVE_AMOUNT_MEAN = VALENCE['positive_words_n'].mean()
 VALENCE_POSITIVE_AMOUNT_DEVIATION = VALENCE['positive_words_n'].std()
 VALENCE_POSITIVE_RATIO_MEAN = VALENCE['positive_words_ratio'].mean()
@@ -36,16 +36,16 @@ VALENCE_NEGATIVE_AMOUNT_DEVIATION = VALENCE['negative_words_n'].std()
 VALENCE_NEGATIVE_RATIO_MEAN = VALENCE['negative_words_ratio'].mean()
 VALENCE_NEGATIVE_RATIO_DEVIATION = VALENCE['negative_words_ratio'].std()
 
-EMOTIONS = pd.read_csv('../dataset/itrust/emotions.csv').set_index('id')
+EMOTIONS = pd.read_csv('dataset/itrust/emotions.csv').set_index('id')
 EMOTIONS_CATEGORIES = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
 #                       0           1       2       3       4           5           6
 
-sentiments = pd.read_csv('../dataset/itrust/sentiments.csv').set_index('id')
+sentiments = pd.read_csv('dataset/itrust/sentiments.csv').set_index('id')
 SENTIMENTS = sentiments.loc[:, ~sentiments.columns.str.contains('^Unnamed')]  # remove previous index
 SENTIMENTS_CATEGORIES = ['sentiment-positive', 'sentiment-negative', 'sentiment-neutral']
 #                               0                        1                   2
 
-OUTPUT_FILE = '../outputs/discretized_tweets.csv'
+# OUTPUT_FILE = '../outputs/discretized_tweets.csv'
 
 # INTERVAL MAP
 # [0,25), [25,50), [50,75), [75,100]
@@ -149,21 +149,21 @@ def discretize_sentiments(tweets_ids):
     return discretize_categories(SENTIMENTS, SENTIMENTS_CATEGORIES, tweets_ids)
 
 
-all_tweets = pd.read_csv(ALL_TWEETS)
-all_tweets = all_tweets.loc[:, ~all_tweets.columns.str.contains('^Unnamed')]  # remove previous index
-all_tweets = all_tweets.set_index('id')
-
-tweets_ids = all_tweets.index.to_list()
-
-context = {
-    **discretize_abusive(tweets_ids),
-    **discretize_polarization(tweets_ids),
-    **predominant_emotion(tweets_ids),
-    **discretize_emotions(tweets_ids),
-    **discretize_mfd(tweets_ids),
-    **discretize_valence(tweets_ids),
-    **predominant_sentiment(tweets_ids),
-    **discretize_sentiments(tweets_ids)
-}
-
-print(context)
+# all_tweets = pd.read_csv(ALL_TWEETS)
+# all_tweets = all_tweets.loc[:, ~all_tweets.columns.str.contains('^Unnamed')]  # remove previous index
+# all_tweets = all_tweets.set_index('id')
+#
+# tweets_ids = all_tweets.index.to_list()
+#
+# context = {
+#     **discretize_abusive(tweets_ids),
+#     **discretize_polarization(tweets_ids),
+#     **predominant_emotion(tweets_ids),
+#     **discretize_emotions(tweets_ids),
+#     **discretize_mfd(tweets_ids),
+#     **discretize_valence(tweets_ids),
+#     **predominant_sentiment(tweets_ids),
+#     **discretize_sentiments(tweets_ids)
+# }
+#
+# print(context)
