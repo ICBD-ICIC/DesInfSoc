@@ -11,7 +11,7 @@ pd.set_option("display.max_columns", None)
 
 warnings.filterwarnings('ignore')
 
-DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered-clean.csv'
+DATASET_FILE = '../dataset/india-election-tweets-formatted-missing-clean.csv'
 VALENCE_WORDS_DICTIONARY = 'dictionaries/anew_val_polarity.xlsx'
 
 start = 0
@@ -46,7 +46,7 @@ while len(all_data[start:end]) != 0:
     df['positive_words_n'] = df['positive_words'].str.split().map(len)
     df['positive_words_ratio'] = df['positive_words'].str.split().map(len) / df['stem_text'].str.split().map(len)
 
-    output_file = 'outputs/itrust/valence/itrust_metrics_valence_{0}.csv'.format(time.time())
+    output_file = '../outputs/itrust/valence/itrust_metrics_valence_{0}.csv'.format(time.time())
     df = df.drop(columns=['user_id', 'text', 'stem_text', 'username', 'created_at'])
     df.to_csv(output_file, index=False)
     start = end

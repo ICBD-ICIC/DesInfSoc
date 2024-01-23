@@ -15,8 +15,8 @@ pd.set_option("display.max_columns", None)
 
 warnings.filterwarnings('ignore')
 
-DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered.csv'
-OUTPUT_FILE = 'outputs/india-election-tweets-formatted-filtered-clean.csv'
+DATASET_FILE = '../outputs/india-election-tweets-formatted-missing.csv'
+OUTPUT_FILE = '../outputs/india-election-tweets-formatted-missing-clean.csv'
 
 
 def remove_text(df, text_column):

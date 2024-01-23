@@ -11,7 +11,7 @@ pd.set_option("display.max_columns", None)
 
 warnings.filterwarnings('ignore')
 
-DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered-clean.csv'
+DATASET_FILE = '../dataset/india-election-tweets-formatted-missing-clean.csv'
 POLARIZATION_WORDS_DICTIONARY = 'dictionaries/lang_online_polarization_dict.csv'
 
 start = 0
@@ -35,7 +35,7 @@ while len(all_data[start:end]) != 0:
     df['polar_words_n'] = df['polar_words'].str.split().map(len)
     df['polar_words_ratio'] = df['polar_words_n'].astype('int') / df['stem_text'].str.split().map(len)
 
-    output_file = 'outputs/itrust/polarization/itrust_metrics_polarization_{0}.csv'.format(time.time())
+    output_file = '../outputs/itrust/polarization/itrust_metrics_polarization_{0}.csv'.format(time.time())
     df = df.drop(columns=['user_id', 'text', 'stem_text', 'username', 'created_at'])
     df.to_csv(output_file, index=False)
     start = end

@@ -11,7 +11,7 @@ warnings.filterwarnings('ignore')
 pd.set_option("max_colwidth", 200)
 pd.set_option("display.max_columns", None)
 
-DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered-clean.csv'
+DATASET_FILE = '../dataset/india-election-tweets-formatted-missing-clean.csv'
 MORAL_FOUNDATION_DICTIONARY = 'dictionaries/mfd.tsv'
 
 start = 0
@@ -36,7 +36,7 @@ while len(all_data[start:end]) != 0:
         df[category + '_n'] = df['mfd_' + category].str.split().map(len)
         df[category + '_ratio'] = df[category + '_n'].astype('int') / df['stem_text'].str.split().map(len)
 
-    output_file = 'outputs/mdf_binary_{0}.csv'.format(time.time())
+    output_file = '../outputs/itrust/mfd_binary/mfd_binary_{0}.csv'.format(time.time())
     df = df.drop(columns=['user_id', 'text', 'stem_text', 'username', 'created_at'])
     df.to_csv(output_file, index=False)
 

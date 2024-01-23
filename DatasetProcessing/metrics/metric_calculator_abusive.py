@@ -11,7 +11,7 @@ pd.set_option("display.max_columns", None)
 
 warnings.filterwarnings('ignore')
 
-DATASET_FILE = 'dataset/india-election-tweets-formatted-filtered-clean.csv'
+DATASET_FILE = '../dataset/india-election-tweets-formatted-missing-clean.csv'
 ABUSIVE_WORDS_DICTIONARY = 'dictionaries/abuseLexicon.xlsx'
 
 start = 0
@@ -38,7 +38,7 @@ while len(all_data[start:end]) != 0:
     num_cols = df.describe().columns
     df[num_cols] = df[num_cols].fillna(0).round(4)
 
-    output_file = 'outputs/itrust/abusive/itrust_metrics_abusive_{0}.csv'.format(time.time())
+    output_file = '../outputs/itrust/abusive/itrust_metrics_abusive_{0}.csv'.format(time.time())
     df = df.drop(columns=['user_id', 'text', 'stem_text', 'username', 'created_at'])
     df.to_csv(output_file, index=False)
     start = end
