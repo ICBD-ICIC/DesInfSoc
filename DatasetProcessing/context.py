@@ -1,7 +1,9 @@
 import pandas as pd
 import time
+import sys
+import csv
 from datetime import timedelta
-# from discretize_personality import *
+from ast import literal_eval
 from discretize_tweets_metrics import *
 
 pd.set_option("max_colwidth", 200)
@@ -9,92 +11,92 @@ pd.set_option("display.max_columns", None)
 
 K = 3  # number of intervals in context
 H = 4  # amount of hours per interval
+P = 12  # amount of hours of the prediction interval
 
-ALL_USERS = pd.read_csv('dataset/network_active_users.csv').set_index('id')[0:3]
-NETWORK = pd.read_json('dataset/india_network.json', lines=True).set_index('id')
-TWEETS = pd.read_csv('dataset/india-election-tweets-formatted-filtered-clean.csv').set_index('id')
-TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'], format='%a %b %d %H:%M:%S +0000 %Y')
-# TWEETS = pd.read_csv('outputs/text.csv').set_index('id')
-# TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
-TWEETS = TWEETS[['user_id', 'created_at']]
-TWEETS = TWEETS.sort_values(by=['created_at'])
-OUTPUT_FILE = 'outputs/context_K{0}_h{1}_{2}'.format(K, H, time.time())
+interval_duration = timedelta(hours=H)
+context_duration = timedelta(hours=H * K)
+prediction_duration = timedelta(hours=P)
+
+one_second = timedelta(seconds=1)
+
+INTERVAL_SIZE = 1000
+
+interval_init = INTERVAL_SIZE * int(sys.argv[1])
+interval_end = interval_init + INTERVAL_SIZE
+
+USERS = pd.read_csv('dataset/user-metrics-with-friends.csv', converters={"friends": literal_eval})
+USERS = USERS.iloc[interval_init:interval_end].set_index('user_id')
+
+TWEETS = pd.read_csv('dataset/india-election-tweets-metrics.csv')  # Order by created_at ascending
+TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
+TWEETS = TWEETS.set_index('user_id')
+
+OUTPUT_FILE = 'dataset/outputs/context_K{0}_h{1}_interval_{2}-{3}_{4}.csv'.format(K, H, interval_init, interval_end, time.time())
 
 
-# def is_duplicated(intervals, interval):
-#     return len(intervals) != 0 and intervals[-1] == interval
-
-
-def interval_tweets(friends, user_id):
-    friends_tweets = TWEETS[TWEETS['user_id'].isin(friends)]
-    user_tweets = TWEETS[TWEETS['user_id'] == user_id]
-
-    user_tweets.to_csv('outputs/test2.csv')
-
+def interval_tweets(friends_tweets, user_tweets):
     min_created_at = friends_tweets.iloc[0]['created_at']
     max_created_at = friends_tweets.iloc[-1]['created_at']
 
-    interval_duration = timedelta(hours=H)
-    total_interval_duration = timedelta(hours=H*K)
-
-    start_time = min_created_at.replace(hour=int(min_created_at.hour - (min_created_at.hour % (24/H))),
+    start_time = min_created_at.replace(hour=int(min_created_at.hour - (min_created_at.hour % (24 / H))),
                                         minute=0, second=0)
-    end_time = start_time + total_interval_duration
+    end_time = start_time + context_duration
+    prediction_end = end_time + prediction_duration
 
     intervals = []
 
+    friends_tweets = friends_tweets.set_index('created_at')
+    user_tweets = user_tweets.set_index('created_at')
+
     while end_time < max_created_at:
-        context_tweets = friends_tweets.loc[(friends_tweets['created_at'] >= start_time) &
-                                            (friends_tweets['created_at'] < end_time)]
+        context_tweets = friends_tweets.loc[start_time:(end_time - one_second)]
+        if len(context_tweets.index) != 0:
+            prediction_tweets = user_tweets.loc[end_time:prediction_end]
+            intervals.append((context_tweets, prediction_tweets))
         start_time += interval_duration
         end_time += interval_duration
-        context_tweets_ids = context_tweets.index.tolist()
-        if len(context_tweets_ids) != 0:
-            prediction = user_tweets.loc[(user_tweets['created_at'] >= end_time) &
-                                         (user_tweets['created_at'] < (end_time + interval_duration))]
-            prediction_ids = prediction.index.tolist()
-            intervals.append({'context_tweets_ids': context_tweets_ids, 'prediction_ids': prediction_ids})
+        prediction_end += interval_duration
     return intervals
 
 
-# def context(tweets_ids):
-#     return {
-#         **discretize_abusive(tweets_ids),
-#         **discretize_polarization(tweets_ids),
-#         **predominant_emotion(tweets_ids),
-#         **discretize_emotions(tweets_ids),
-#         **discretize_mfd(tweets_ids),
-#         **discretize_valence(tweets_ids),
-#         **predominant_sentiment(tweets_ids),
-#         **discretize_sentiments(tweets_ids),
-#         'tweets_amount': len(tweets_ids)
-#     }
-
-def ground_truth(tweets_ids):
-    prediction = {
-        **discretize_abusive(tweets_ids),
-        **discretize_polarization(tweets_ids),
-        **prediction_mfd(tweets_ids),
-        **prediction_valence(tweets_ids),
-        **predominant_sentiment(tweets_ids),
-        'tweets_amount': len(tweets_ids)
-        # falta emotions
-    }
-    ground_truth = {f"ground_truth_{key}": val for key, val in prediction.items()}
-    return ground_truth
+def context(tweets):
+    return discretize_abusive(tweets) + \
+           discretize_polarization(tweets) + \
+           predominant_emotion(tweets) + \
+           discretize_emotions(tweets) + \
+           discretize_mfd(tweets) + \
+           discretize_valence(tweets) + \
+           predominant_sentiment(tweets) + \
+           discretize_sentiments(tweets) + \
+           (len(tweets),)
 
 
-for user_id in ALL_USERS.index:
-    user_context = {
-        # **discretize_big_five(user_id),
-        # **discretize_psychographics(user_id)
-    }
+def ground_truth(tweets):
+    return discretize_abusive(tweets) + \
+           discretize_polarization(tweets) + \
+           predominant_emotion(tweets) + \
+           prediction_mfd(tweets) + \
+           prediction_valence(tweets) + \
+           predominant_sentiment(tweets) + \
+           (len(tweets),)
 
-    user_network = NETWORK.loc[user_id]
-    if user_network['friends_count'] > 0:
-        intervals = interval_tweets(user_network['friends'], user_id)
-        # context = list(map(lambda tweets_ids: context(tweets_ids['context_tweets_ids']), intervals))
-        ground_truth = list(map(lambda tweets_ids: ground_truth(tweets_ids['prediction_ids']), intervals))
-        print(user_context)
-        # print(tweets_context)
-        print(ground_truth)
+
+with open(OUTPUT_FILE, 'w', newline='') as output_file:
+    csv_writer = csv.writer(output_file)
+    for user_id, user in USERS.iterrows():
+        print('Calculating for user: {0}'.format(user_id))
+        time_start = time.time()
+
+        user_context = user['big_five'], user['symanto_psychographics']
+
+        friends_tweets = TWEETS[TWEETS.index.isin(user['friends'])]
+        if len(friends_tweets) != 0:
+            user_tweets = TWEETS.loc[user_id]
+            intervals = interval_tweets(friends_tweets, user_tweets)
+            for interval in intervals:
+                context_values = context(interval[0])
+                ground_truth_values = ground_truth(interval[1])
+                context_prediction = user_context + context_values + ground_truth_values
+                csv_writer.writerow(context_prediction)
+        print('Finish calculating user: {0}. Total seconds: {1}'.format(user_id, time.time()-time_start))
+

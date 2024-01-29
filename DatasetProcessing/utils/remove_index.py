@@ -1,7 +1,7 @@
 import pandas as pd
 
-ORIGINAL_FILE = '../dataset/india-election-tweets-formatted-filtered-clean2.csv'
-RESULT_FILE = '../dataset/india-election-tweets-formatted-filtered-clean.csv'
+ORIGINAL_FILE = '../dataset/india-election-tweets-metrics.csv'
+RESULT_FILE = '../dataset/india-election-tweets-metrics.csv'
 
 original = pd.read_csv(ORIGINAL_FILE)
 original = original.loc[:, ~original.columns.str.contains('^Unnamed')]  # remove previous index
