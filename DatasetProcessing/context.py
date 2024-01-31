@@ -19,7 +19,8 @@ prediction_duration = timedelta(hours=P)
 
 one_second = timedelta(seconds=1)
 
-INTERVAL_SIZE = 1000
+INTERVAL_SIZE = 3000
+SPREAD = 60
 
 interval_init = INTERVAL_SIZE * int(sys.argv[1])
 interval_end = interval_init + INTERVAL_SIZE
@@ -31,16 +32,16 @@ TWEETS = pd.read_csv('dataset/india-election-tweets-metrics.csv')  # Order by cr
 TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
 TWEETS = TWEETS.set_index('user_id')
 
-OUTPUT_FILE = 'dataset/outputs/context_K{0}_h{1}_interval_{2}-{3}_{4}.csv'.format(K, H, interval_init, interval_end, time.time())
+OUTPUT_FILE = 'dataset/outputs/context_SPREAD60_K{0}_h{1}_interval_{2}-{3}_{4}.csv'.format(K, H, interval_init, interval_end, time.time())
 
 
 def interval_tweets(friends_tweets, user_tweets):
     min_created_at = friends_tweets.iloc[0]['created_at']
-    max_created_at = friends_tweets.iloc[-1]['created_at']
 
     start_time = min_created_at.replace(hour=int(min_created_at.hour - (min_created_at.hour % (24 / H))),
                                         minute=0, second=0)
     end_time = start_time + context_duration
+    max_created_at = max(friends_tweets.iloc[-1]['created_at'], end_time)
     prediction_end = end_time + prediction_duration
 
     intervals = []
@@ -48,7 +49,7 @@ def interval_tweets(friends_tweets, user_tweets):
     friends_tweets = friends_tweets.set_index('created_at')
     user_tweets = user_tweets.set_index('created_at')
 
-    while end_time < max_created_at:
+    while end_time <= max_created_at:
         context_tweets = friends_tweets.loc[start_time:(end_time - one_second)]
         if len(context_tweets.index) != 0:
             prediction_tweets = user_tweets.loc[end_time:prediction_end]
@@ -93,10 +94,18 @@ with open(OUTPUT_FILE, 'w', newline='') as output_file:
         if len(friends_tweets) != 0:
             user_tweets = TWEETS.loc[user_id]
             intervals = interval_tweets(friends_tweets, user_tweets)
+
+            # Spread
+            empty_ground_truth = sum(1 for interval in intervals if interval[1].empty)
+            percentage_empty = (empty_ground_truth / len(intervals)) * 100
+            percentage_non_empty = 100 - percentage_empty
+            if abs(percentage_empty - percentage_non_empty) > SPREAD:
+                continue
+
             for interval in intervals:
                 context_values = context(interval[0])
                 ground_truth_values = ground_truth(interval[1])
                 context_prediction = user_context + context_values + ground_truth_values
                 csv_writer.writerow(context_prediction)
         print('Finish calculating user: {0}. Total seconds: {1}'.format(user_id, time.time()-time_start))
-
+print('FINISHED')

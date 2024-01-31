@@ -37,9 +37,9 @@ SENTIMENTS_CATEGORIES = ['sentiment-neutral', 'sentiment-positive', 'sentiment-n
 
 # INTERVAL MAP
 # [0,0.25), [0.25,0.5), [0.5,0.75), [0.75,1]
-# 0         1       2           3
+# 0         1             2           3
 def discretize_percentage(value):
-    return int(value * 4)
+    return min(int(value * 4), 3)
 
 
 def discretize_column_values(tweets, column_name, mean, std):
