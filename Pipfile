@@ -11,6 +11,7 @@ django-pipeline = "*"
 transformers = "*"
 openpyxl = "*"
 torch = "*"
+imblearn = "*"
 
 [dev-packages]
 
