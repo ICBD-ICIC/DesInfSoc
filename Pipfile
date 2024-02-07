@@ -12,6 +12,7 @@ transformers = "*"
 openpyxl = "*"
 torch = "*"
 imblearn = "*"
+seaborn = "*"
 
 [dev-packages]
 
