@@ -1,5 +1,5 @@
 import matplotlib
-import seaborn
+import seaborn as sns
 import json
 import os
 import pandas as pd
@@ -10,19 +10,29 @@ file_list = os.listdir(FOLDER_PATH)
 
 plot_data = []
 
+
 #TODO: ver como mostrar todas las metricas en un solo grafico
 
 for file in file_list:
-    model_data = open(FOLDER_PATH + "/" + file, "r").read()
-    model_data = " ".join(model_data.split())
-    model_data = model_data.split('}{', 1)[0] + '}'
-    model_data = json.loads(model_data)
-    model_data['model'] = file.split(',')[1]
-    model_data['prediction'] = file.split(',')[2]
-    plot_data.append(model_data)
+    metrics = open(FOLDER_PATH + "/" + file, "r").read()
+    metrics = " ".join(metrics.split())
+    metrics = metrics.split('}{', 1)[0] + '}'
+    metrics = json.loads(metrics)
+    model = file.split(',')[1]
+    prediction = file.split(',')[2]
+    print(metrics)
+    for name, value in metrics.items():
+        model_data = {'metric_name': name, 'metric_value': value, 'model': model, 'prediction': prediction}
+        plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['accuracy', 'precision_macro', 'recall_macro'])]
 
-barplot = seaborn.barplot(data=dataframe, x='prediction', hue="model", y="accuracy")
-seaborn.move_legend(barplot, "lower center", bbox_to_anchor=(.5, 1), ncol=3, title=None, frameon=False)
+print(dataframe['metric_name'].value_counts())
+
+grid = sns.FacetGrid(dataframe, col="metric_name")
+
+
+grid.map_dataframe(sns.barplot, 'prediction', 'metric_value', 'model')
+grid.add_legend()
 matplotlib.pyplot.show()
