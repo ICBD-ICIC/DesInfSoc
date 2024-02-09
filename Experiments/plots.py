@@ -1,4 +1,4 @@
-import matplotlib
+import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 import os
@@ -10,9 +10,6 @@ file_list = os.listdir(FOLDER_PATH)
 
 plot_data = []
 
-
-#TODO: ver como mostrar todas las metricas en un solo grafico
-
 for file in file_list:
     metrics = open(FOLDER_PATH + "/" + file, "r").read()
     metrics = " ".join(metrics.split())
@@ -20,19 +17,17 @@ for file in file_list:
     metrics = json.loads(metrics)
     model = file.split(',')[1]
     prediction = file.split(',')[2]
-    print(metrics)
     for name, value in metrics.items():
-        model_data = {'metric_name': name, 'metric_value': value, 'model': model, 'prediction': prediction}
+        model_data = {'metric_name': name, 'metric_value': value, 'model': model, 'prediction': prediction.split('_')[0]}
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
 dataframe = dataframe.loc[dataframe['metric_name'].isin(['accuracy', 'precision_macro', 'recall_macro'])]
 
-print(dataframe['metric_name'].value_counts())
+sns.set_style("whitegrid")
 
-grid = sns.FacetGrid(dataframe, col="metric_name")
+p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="model", col='metric_name', kind="bar")
+p.set(xlabel=None, ylabel=None)
+p.set_titles("{col_name}")
 
-
-grid.map_dataframe(sns.barplot, 'prediction', 'metric_value', 'model')
-grid.add_legend()
-matplotlib.pyplot.show()
+plt.show()
