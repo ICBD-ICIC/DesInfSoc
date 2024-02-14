@@ -2,7 +2,7 @@
 #SBATCH --job-name=itrust-neural_network
 #SBATCH --mem-per-cpu=8G
 #SBATCH --cpus-per-task=4
-#SBATCH --array=28,30,32,36
+#SBATCH --array=31,34
 #SBATCH --time=07-00:00:00
 #SBATCH --output=outputs/neural_network-%A-%a.out
 #SBATCH --error=errors/neural_network-%A-%a.err

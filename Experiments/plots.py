@@ -28,7 +28,7 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['accuracy', 'f1'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision', 'recall'])]
 
 sns.set_style("whitegrid")
 
