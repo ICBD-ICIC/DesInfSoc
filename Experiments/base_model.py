@@ -27,15 +27,10 @@ context_columns = list(range(0, 26))
 prediction = sys.argv[1]
 dataset_name = sys.argv[2]
 
-
 def get_train_test():
     dataset = pd.read_csv('dataset/{}.csv'.format(dataset_name))
     X = dataset.iloc[:, context_columns]
     y = dataset.iloc[:, int(prediction)]
-    print('Amount per class, original:')
-    print(y.value_counts())
-    X, y = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X, y)
-    print('Amount per class, after random under sampler:')
     print(y.value_counts())
     return X, y
 
@@ -44,6 +39,15 @@ def get_train_test():
 def get_train_test_split():
     X, y = get_train_test()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=42)
+
+    # print('TOTAL Amount per class, original:')
+    # print(y.value_counts())
+    # print('TRAIN Amount per class, original:')
+    # print(y_train.value_counts())
+    # X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
+    # print('TRAIN Amount per class, after random under sampler:')
+    # print(y_train.value_counts())
+
     return X_train, X_test, y_train, y_test
 
 

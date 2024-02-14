@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=itrust-support_vector_machine
-#SBATCH --mem-per-cpu=12G
-#SBATCH --cpus-per-task=4
-#SBATCH --array=28,30,32,36
-#SBATCH --time=07-00:00:00
+#SBATCH --mem-per-cpu=8G
+#SBATCH --cpus-per-task=6
+#SBATCH --array=31,34
+#SBATCH --time=7-00:00:00
 #SBATCH --output=outputs/support_vector_machine-%A-%a.out
 #SBATCH --error=errors/support_vector_machine-%A-%a.err
 
