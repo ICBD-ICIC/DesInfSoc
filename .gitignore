@@ -3,3 +3,5 @@ DatasetProcessing/outputs/
 /.idea/
 DatasetProcessing/metrics/config.json
 dataset/
+Experiments/binary/dataset
+Experiments/multiclass/dataset
