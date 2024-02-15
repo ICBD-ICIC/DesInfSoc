@@ -32,3 +32,4 @@ with open(base_model.get_output_filepath('random_forest'), 'w') as file:
      file.write(str(random_search.best_params_))
 
 print('FINISHED after {} seconds'.format(time.time()-start))
+

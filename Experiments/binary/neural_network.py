@@ -31,3 +31,4 @@ with open(base_model.get_output_filepath('neural_network'), 'w') as file:
      file.write(str(random_search.best_params_))
 
 print('FINISHED after {} seconds'.format(time.time()-start))
+

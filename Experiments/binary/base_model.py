@@ -27,27 +27,25 @@ context_columns = list(range(0, 26))
 prediction = sys.argv[1]
 dataset_name = sys.argv[2]
 
-
-def get_dataset():
+def get_train_test():
     dataset = pd.read_csv('dataset/{}.csv'.format(dataset_name))
     X = dataset.iloc[:, context_columns]
     y = dataset.iloc[:, int(prediction)]
-    print(y.value_counts())
     return X, y
 
 
 # Maintains class balance
 def get_train_test_split():
-    X, y = get_dataset()
+    X, y = get_train_test()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=42)
 
-    # print('TOTAL Amount per class, original:')
-    # print(y.value_counts())
-    # print('TRAIN Amount per class, original:')
-    # print(y_train.value_counts())
-    # X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
-    # print('TRAIN Amount per class, after random under sampler:')
-    # print(y_train.value_counts())
+    print('TOTAL Amount per class, original:')
+    print(y.value_counts())
+    print('TRAIN Amount per class, original:')
+    print(y_train.value_counts())
+    X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
+    print('TRAIN Amount per class, after random under sampler:')
+    print(y_train.value_counts())
 
     return X_train, X_test, y_train, y_test
 
@@ -62,3 +60,4 @@ def get_metrics(y_test, y_pred):
     for beta_option in BETA_OPTIONS:
         metrics['fbeta_{}'.format(beta_option)] = fbeta_score(y_test, y_pred, beta=beta_option)
     return metrics
+
