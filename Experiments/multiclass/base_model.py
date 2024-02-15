@@ -21,6 +21,7 @@ PREDICTION_MAP = {
 }
 
 BETA_OPTIONS = [0.5, 2, 3, 4]
+AVERAGE_OPTIONS = ['micro', 'macro', 'weighted']
 
 context_columns = list(range(0, 26))
 
@@ -44,7 +45,14 @@ def get_train_test_split():
     print(y.value_counts())
     print('TRAIN Amount per class, original:')
     print(y_train.value_counts())
-    X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
+
+    minority_class = min(y_train.value_counts())
+    strategy = dict(y_train.value_counts())
+    strategy = {class_name: int(min(amount, minority_class * 1.6)) for class_name, amount in strategy.items()}
+
+    print(strategy)
+
+    X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=strategy).fit_resample(X_train, y_train)
     print('TRAIN Amount per class, after random under sampler:')
     print(y_train.value_counts())
 
@@ -56,8 +64,12 @@ def get_output_filepath(model_name):
 
 
 def get_metrics(y_test, y_pred):
-    metrics = {'accuracy': accuracy_score(y_test, y_pred), 'precision': precision_score(y_test, y_pred),
-               'recall': recall_score(y_test, y_pred), 'f1': f1_score(y_test, y_pred)}
-    for beta_option in BETA_OPTIONS:
-        metrics['fbeta_{}'.format(beta_option)] = fbeta_score(y_test, y_pred, beta=beta_option)
+    metrics = {'accuracy': accuracy_score(y_test, y_pred)}
+    for average_option in AVERAGE_OPTIONS:
+        metrics['precision_{}'.format(average_option)] = precision_score(y_test, y_pred, average=average_option)
+        metrics['recall_{}'.format(average_option)] = recall_score(y_test, y_pred, average=average_option)
+        metrics['f1_{}'.format(average_option)] = f1_score(y_test, y_pred, average=average_option)
+        for beta_option in BETA_OPTIONS:
+            metrics['fbeta_{}_{}'.format(average_option, beta_option)] = \
+                fbeta_score(y_test, y_pred, average=average_option, beta=beta_option)
     return metrics
