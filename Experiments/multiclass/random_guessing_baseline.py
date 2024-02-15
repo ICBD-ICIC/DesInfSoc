@@ -51,6 +51,13 @@ for i, class_name in enumerate(classes_names):
     for beta_option in base_model.BETA_OPTIONS:
         fbetas[beta_option].append(fbeta(beta_option, precision, recall))
 
+print(TPs)
+print(TNs)
+print(FPs)
+print(FNs)
+print(recalls)
+print(precisions)
+
 #########################
 ######### MACRO #########
 #########################

@@ -37,7 +37,7 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['f1_weighted'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['f1_macro'])]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
