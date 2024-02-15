@@ -26,7 +26,8 @@ plot_data = []
 for file in file_list:
     metrics = open(FOLDER_PATH + "/" + file, "r").read()
     metrics = " ".join(metrics.split())
-    metrics = metrics.split('}{', 1)[0] + '}'
+    metrics = metrics.split('}{', 1)[0]
+    metrics = metrics + '}' if metrics[-1] != '}' else metrics
     metrics = json.loads(metrics)
     model = file.split(',')[1]
     prediction: str = file.split(',')[2]
@@ -36,13 +37,13 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['recall'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision'])]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
 
 p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="model", col='metric_name', kind="bar",
-                edgecolor='black', legend=True)
+                edgecolor='black', legend=False)
 p.set(xlabel=None, ylabel=None)
 p.set_titles("{col_name}")
 
@@ -60,10 +61,9 @@ for axes in p.axes.flat:
 
 models_names = list(map(lambda name: name.replace('_', ' ').capitalize(), dataframe['model'].unique()))
 
-# Create a custom legend outside the catplot
-# legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
-#                   for i in range(0, bars_amount)]
-# plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
-# plt.subplots_adjust(right=0.7)
+legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
+                  for i in range(0, len(colors))]
+plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
+plt.subplots_adjust(right=0.7)
 
 plt.show()

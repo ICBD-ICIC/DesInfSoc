@@ -27,7 +27,8 @@ context_columns = list(range(0, 26))
 prediction = sys.argv[1]
 dataset_name = sys.argv[2]
 
-def get_train_test():
+
+def get_dataset():
     dataset = pd.read_csv('dataset/{}.csv'.format(dataset_name))
     X = dataset.iloc[:, context_columns]
     y = dataset.iloc[:, int(prediction)]
@@ -37,7 +38,7 @@ def get_train_test():
 
 # Maintains class balance
 def get_train_test_split():
-    X, y = get_train_test()
+    X, y = get_dataset()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=42)
 
     # print('TOTAL Amount per class, original:')
