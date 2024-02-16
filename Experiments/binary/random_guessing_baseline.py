@@ -25,8 +25,10 @@ precision = TP / (TP + FP)
 recall = TP / (TP + FN)
 accuracy = (TP + TN) / total
 f1 = fbeta(1, precision, recall)
+precision_recall_auc = recall  # y * (1-0)
 
-metrics = {'accuracy': accuracy, 'precision': precision, 'recall': recall, 'f1': f1, 'roc_auc': 0.5}
+metrics = {'accuracy': accuracy, 'precision': precision, 'recall': recall, 'f1': f1, 'roc_auc': 0.5,
+           'precision_recall_auc': precision_recall_auc}
 
 for beta_option in base_model.BETA_OPTIONS:
     metrics['fbeta_{}'.format(beta_option)] = fbeta(beta_option, precision, recall)

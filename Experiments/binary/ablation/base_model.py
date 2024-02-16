@@ -2,7 +2,8 @@ import sys
 import pandas as pd
 import time
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, fbeta_score, roc_auc_score
+from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, fbeta_score, roc_auc_score, auc,
+                             precision_recall_curve)
 from imblearn.under_sampling import RandomUnderSampler
 
 KFOLD = 3
@@ -72,10 +73,16 @@ def get_output_filepath(model_name):
                                                time.time())
 
 
+def precision_recall_auc(y_test, y_pred):
+    precision, recall, thresholds = precision_recall_curve(y_test, y_pred)
+    return auc(recall, precision)
+
+
 def get_metrics(y_test, y_pred):
     metrics = {'accuracy': accuracy_score(y_test, y_pred), 'precision': precision_score(y_test, y_pred),
                'recall': recall_score(y_test, y_pred), 'f1': f1_score(y_test, y_pred),
-               'roc_auc': roc_auc_score(y_test, y_pred)}
+               'roc_auc': roc_auc_score(y_test, y_pred),
+               'precision_recall_auc': precision_recall_auc(y_test, y_pred)}
     for beta_option in BETA_OPTIONS:
         metrics['fbeta_{}'.format(beta_option)] = fbeta_score(y_test, y_pred, beta=beta_option)
     return metrics
