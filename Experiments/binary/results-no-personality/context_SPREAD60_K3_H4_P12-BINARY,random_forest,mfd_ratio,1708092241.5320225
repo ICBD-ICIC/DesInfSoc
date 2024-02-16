@@ -1,11 +1,11 @@
 {
-    "accuracy": 0.5698603304216322,
-    "precision": 0.08637704207026167,
-    "recall": 0.5438764177908861,
-    "f1": 0.14907791614788274,
-    "roc_auc": 0.5578354441217618,
-    "fbeta_0.5": 0.10384808183396403,
-    "fbeta_2": 0.26410642232980525,
-    "fbeta_3": 0.3555552117192121,
-    "fbeta_4": 0.4146786676051416
+    "accuracy": 0.5726004953108179,
+    "precision": 0.08534734929747365,
+    "recall": 0.5319879112276295,
+    "f1": 0.14709594926736444,
+    "roc_auc": 0.5538057236040195,
+    "fbeta_0.5": 0.10257032195016473,
+    "fbeta_2": 0.2599320914568135,
+    "fbeta_3": 0.34922903810080974,
+    "fbeta_4": 0.4067696333985287
 }{'bootstrap': True, 'ccp_alpha': 0.0, 'class_weight': None, 'criterion': 'gini', 'max_depth': None, 'max_features': 'sqrt', 'max_leaf_nodes': None, 'max_samples': None, 'min_impurity_decrease': 0.0, 'min_samples_leaf': 10, 'min_samples_split': 2, 'min_weight_fraction_leaf': 0.0, 'n_estimators': 100, 'n_jobs': None, 'oob_score': False, 'random_state': None, 'verbose': 0, 'warm_start': False}

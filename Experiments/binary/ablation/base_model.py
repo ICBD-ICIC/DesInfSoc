@@ -20,7 +20,12 @@ PREDICTION_MAP = {
     '36': 'predominant_sentiment'
 }
 ABLATION_FEATURES_TO_REMOVE = {
-    'no-personality': [0, 1]
+    'no-personality': [0, 1],
+    'no-linguistic': [2, 3, 4, 5, 14, 15, 16, 17, 18, 19, 20, 21],
+    'no-emotions-no-sentiments': [6, 7, 8, 9, 10, 11, 12, 13, 22, 23, 24, 25],
+    'no-bif-five': [0],
+    'no-symanto-psychographics': [1],
+    'all': []
 }
 
 BETA_OPTIONS = [0.5, 2, 3, 4]

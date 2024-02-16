@@ -17,7 +17,7 @@ def prediction_display_name(prediction_original):
     return display_name
 
 
-FOLDER_PATH = 'binary/results-roc-auc/'
+FOLDER_PATH = 'binary/results-no-personality/'
 
 file_list = os.listdir(FOLDER_PATH)
 
@@ -37,7 +37,7 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['roc_auc'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['f1'])]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
