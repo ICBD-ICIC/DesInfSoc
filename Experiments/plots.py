@@ -17,7 +17,7 @@ def prediction_display_name(prediction_original):
     return display_name
 
 
-FOLDER_PATH = 'multiclass/results/'
+FOLDER_PATH = 'binary/results/'
 
 file_list = os.listdir(FOLDER_PATH)
 
@@ -37,7 +37,7 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['f1_macro'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['f1'])]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
