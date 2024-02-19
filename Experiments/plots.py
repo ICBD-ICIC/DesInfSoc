@@ -17,7 +17,7 @@ def prediction_display_name(prediction_original):
     return display_name
 
 
-FOLDER_PATH = 'binary/results-no-linguistic/'
+FOLDER_PATH = 'binary/results-no-emotions-no-sentiments/'
 
 file_list = os.listdir(FOLDER_PATH)
 
