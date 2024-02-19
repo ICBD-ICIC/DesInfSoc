@@ -9,6 +9,8 @@ X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
 BEST_ATTRIBUTES = {
     '28': {'hidden_layer_sizes': (20,), 'batch_size': 200},
+    '30': {'hidden_layer_sizes': (20,), 'batch_size': 200},
+    '31': {'hidden_layer_sizes': (20,), 'batch_size': 200},
     '32': {'hidden_layer_sizes': (20,), 'batch_size': 200},
     '34': {'hidden_layer_sizes': (15,), 'batch_size': 200},
     '36': {'hidden_layer_sizes': (30,), 'batch_size': 100}
