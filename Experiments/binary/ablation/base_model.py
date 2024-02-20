@@ -26,6 +26,7 @@ ABLATION_FEATURES_TO_REMOVE = {
     'no-emotions-no-sentiments': [6, 7, 8, 9, 10, 11, 12, 13, 22, 23, 24, 25],
     'no-bif-five': [0],
     'no-symanto-psychographics': [1],
+    'no-linguistic-amount': [2, 4, 14, 16, 18, 20],
     'all': []
 }
 
