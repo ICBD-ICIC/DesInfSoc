@@ -1,0 +1,20 @@
+{
+    "precision_macro": 0.25,
+    "recall_macro": 0.25,
+    "f1_macro": 0.25,
+    "fbeta_0.5_macro": 0.25,
+    "fbeta_2_macro": 0.25,
+    "fbeta_3_macro": 0.25,
+    "fbeta_4_macro": 0.25,
+    "precision_weighted": 0.48363443576758824,
+    "recall_weighted": 0.48363443576758824,
+    "f1_weighted": 0.48363443576758824,
+    "fbeta_0.5_weighted": 0.48363443576758824,
+    "fbeta_2_weighted": 0.48363443576758824,
+    "fbeta_3_weighted": 0.48363443576758836,
+    "fbeta_4_weighted": 0.48363443576758824,
+    "precision_micro": 0.48363443576758824,
+    "recall_micro": 0.48363443576758824,
+    "f1_micro": 0.48363443576758824,
+    "fbeta_{}_micro": 0.48363443576758824
+}

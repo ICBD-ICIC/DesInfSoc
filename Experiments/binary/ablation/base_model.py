@@ -24,9 +24,13 @@ ABLATION_FEATURES_TO_REMOVE = {
     'no-personality': [0, 1],
     'no-linguistic': [2, 3, 4, 5, 14, 15, 16, 17, 18, 19, 20, 21],
     'no-emotions-no-sentiments': [6, 7, 8, 9, 10, 11, 12, 13, 22, 23, 24, 25],
-    'no-bif-five': [0],
+    'no-big-five': [0],
     'no-symanto-psychographics': [1],
     'no-linguistic-amount': [2, 4, 14, 16, 18, 20],
+    'no-linguistic-amount-no-personality': [0, 1, 2, 4, 14, 16, 18, 20],
+    'only-linguistic-ratio': [0, 1, 2, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 23, 24, 25],
+    'only-personality': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+    'only-emotions-and-sentiments': [0, 1, 2, 3, 4, 5, 14, 15, 16, 17, 18, 19, 20, 21],
     'all': []
 }
 

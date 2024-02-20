@@ -7,8 +7,8 @@ from matplotlib.patches import Patch
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO']
 
-PREDICTION = 'mfd_ratio'
-METRICS = ['roc_auc']
+PREDICTION = 'polarization_ratio'
+METRICS = ['precision','recall']
 
 MODELS_SHORTNAMES = {
     'complement_naive_bayes': 'CNB',
@@ -21,10 +21,15 @@ MODELS_SHORTNAMES = {
 }
 
 FOLDERS_PATHS = ['binary/results-all',
-                 'binary/results-no-personality',
-                 'binary/results-no-linguistic',
-                 'binary/results-no-emotions-no-sentiments',
-                 'binary/results-no-linguistic-amount']
+                 # 'binary/results-no-personality',
+                 # 'binary/results-no-linguistic',
+                 # 'binary/results-no-emotions-no-sentiments',
+                 # 'binary/results-no-linguistic-amount',
+                 # 'binary/results-no-linguistic-amount-no-personality',
+                 'binary/results-only-linguistic-ratio',
+                 'binary/results-only-personality',
+                 'binary/results-only-emotions-and-sentiments',
+                 ]
 
 
 file_list = []
