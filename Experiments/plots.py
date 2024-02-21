@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO']
+HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
 
 def prediction_display_name(prediction_original):
@@ -17,7 +17,7 @@ def prediction_display_name(prediction_original):
     return display_name
 
 
-FOLDER_PATH = 'binary/results-no-emotions-no-sentiments/'
+FOLDER_PATH = 'single_params/complement_naive_bayes/'
 
 file_list = os.listdir(FOLDER_PATH)
 
@@ -37,7 +37,7 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision_recall_auc'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision', 'recall'])]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
