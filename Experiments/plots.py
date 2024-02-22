@@ -5,8 +5,11 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
+FOLDER_PATH = 'binary/results-all-hyperparameters/'
+METRIC = 'f1'
 
+
+HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
 def prediction_display_name(prediction_original):
     display_name = (prediction_original
@@ -16,8 +19,6 @@ def prediction_display_name(prediction_original):
                     .replace('mfd', 'MFD'))
     return display_name
 
-
-FOLDER_PATH = 'single_params/complement_naive_bayes/'
 
 file_list = os.listdir(FOLDER_PATH)
 
@@ -29,20 +30,21 @@ for file in file_list:
     metrics = metrics.split('}{', 1)[0]
     metrics = metrics + '}' if metrics[-1] != '}' else metrics
     metrics = json.loads(metrics)
+    spread = file.split(',')[0].split('_')[1].replace('SPREAD','')
     model = file.split(',')[1]
     prediction: str = file.split(',')[2]
     for name, value in metrics.items():
         model_data = {'metric_name': name, 'metric_value': value, 'model': model,
-                      'prediction': prediction_display_name(prediction)}
+                      'prediction': prediction_display_name(prediction), 'spread': spread}
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision_recall_auc'])]
+dataframe = dataframe.loc[dataframe['metric_name'] == METRIC]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
 
-p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="model", col='metric_name', kind="bar",
+p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="model", col='spread', kind="bar",
                 edgecolor='black', legend=False)
 p.set(xlabel=None, ylabel=None)
 p.set_titles("{col_name}")
@@ -61,6 +63,6 @@ for axes in p.axes.flat:
 legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
                   for i in range(0, len(colors))]
 plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
-plt.subplots_adjust(right=0.6)
+plt.subplots_adjust(right=0.8)
 
 plt.show()

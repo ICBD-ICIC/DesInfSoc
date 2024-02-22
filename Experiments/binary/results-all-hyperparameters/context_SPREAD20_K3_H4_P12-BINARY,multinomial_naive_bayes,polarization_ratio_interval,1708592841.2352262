@@ -1,0 +1,12 @@
+{
+    "accuracy": 0.47111166959383044,
+    "precision": 0.19457454208207745,
+    "recall": 0.6049305588927868,
+    "f1": 0.29444236526946105,
+    "roc_auc": 0.5230911506977785,
+    "precision_recall_auc": 0.4357888103026848,
+    "fbeta_0.5": 0.225116152638337,
+    "fbeta_2": 0.4254686306453685,
+    "fbeta_3": 0.49957138775121446,
+    "fbeta_4": 0.5381665279311134
+}{'alpha': 100, 'class_prior': None, 'fit_prior': True, 'force_alpha': True}{'force_alpha': True, 'fit_prior': True, 'alpha': 100}
