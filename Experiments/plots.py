@@ -37,7 +37,7 @@ for file in file_list:
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
-dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision', 'recall'])]
+dataframe = dataframe.loc[dataframe['metric_name'].isin(['precision_recall_auc'])]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
@@ -61,6 +61,6 @@ for axes in p.axes.flat:
 legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
                   for i in range(0, len(colors))]
 plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
-plt.subplots_adjust(right=0.7)
+plt.subplots_adjust(right=0.6)
 
 plt.show()
