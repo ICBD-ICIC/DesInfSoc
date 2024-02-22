@@ -19,7 +19,7 @@ prediction_duration = timedelta(hours=P)
 
 one_second = timedelta(seconds=1)
 
-INTERVAL_SIZE = 3000
+INTERVAL_SIZE = 100000
 SPREAD = 60
 
 interval_init = INTERVAL_SIZE * int(sys.argv[1])
@@ -82,30 +82,35 @@ def ground_truth(tweets):
            (len(tweets),)
 
 
-with open(OUTPUT_FILE, 'w', newline='') as output_file:
-    csv_writer = csv.writer(output_file)
-    for user_id, user in USERS.iterrows():
-        print('Calculating for user: {0}'.format(user_id))
-        time_start = time.time()
+total_users = 0
 
-        user_context = user['big_five'], user['symanto_psychographics']
 
-        friends_tweets = TWEETS[TWEETS.index.isin(user['friends'])]
-        if len(friends_tweets) != 0:
-            user_tweets = TWEETS.loc[user_id]
-            intervals = interval_tweets(friends_tweets, user_tweets)
+# with open(OUTPUT_FILE, 'w', newline='') as output_file:
+    # csv_writer = csv.writer(output_file)
+for user_id, user in USERS.iterrows():
+    # print('Calculating for user: {0}'.format(user_id))
+    # time_start = time.time()
+    #
+    # user_context = user['big_five'], user['symanto_psychographics']
 
-            # Spread
-            empty_ground_truth = sum(1 for interval in intervals if interval[1].empty)
-            percentage_empty = (empty_ground_truth / len(intervals)) * 100
-            percentage_non_empty = 100 - percentage_empty
-            if abs(percentage_empty - percentage_non_empty) > SPREAD:
-                continue
+    friends_tweets = TWEETS[TWEETS.index.isin(user['friends'])]
+    if len(friends_tweets) != 0:
+        user_tweets = TWEETS.loc[user_id]
+        intervals = interval_tweets(friends_tweets, user_tweets)
 
-            for interval in intervals:
-                context_values = context(interval[0])
-                ground_truth_values = ground_truth(interval[1])
-                context_prediction = user_context + context_values + ground_truth_values
-                csv_writer.writerow(context_prediction)
-        print('Finish calculating user: {0}. Total seconds: {1}'.format(user_id, time.time()-time_start))
+        # Spread
+        empty_ground_truth = sum(1 for interval in intervals if interval[1].empty)
+        percentage_empty = (empty_ground_truth / len(intervals)) * 100
+        percentage_non_empty = 100 - percentage_empty
+        if abs(percentage_empty - percentage_non_empty) > SPREAD:
+            continue
+
+        total_users += 1
+        #     for interval in intervals:
+        #         context_values = context(interval[0])
+        #         ground_truth_values = ground_truth(interval[1])
+        #         context_prediction = user_context + context_values + ground_truth_values
+        #         csv_writer.writerow(context_prediction)
+        # print('Finish calculating user: {0}. Total seconds: {1}'.format(user_id, time.time()-time_start))
+print(total_users)
 print('FINISHED')
