@@ -7,7 +7,16 @@ start = time.time()
 
 X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
-BEST_ATTRIBUTES = {
+BEST_ATTRIBUTES_SPREAD20 = {
+    '28': {'norm': False, 'alpha': 0.2},
+    '30': {'norm': False, 'alpha': 0.2},
+    '31': {'norm': False, 'alpha': 0.2},
+    '32': {'norm': False, 'alpha': 0.1},
+    '34': {'norm': False, 'alpha': 0.2},
+    '36': {'norm': False, 'alpha': 0.1}
+}
+
+BEST_ATTRIBUTES_SPREAD60 = {
     '28': {'norm': False, 'alpha': 0.2},
     '30': {'norm': False, 'alpha': 0.2},
     '31': {'norm': False, 'alpha': 0.2},
@@ -16,7 +25,12 @@ BEST_ATTRIBUTES = {
     '36': {'norm': False, 'alpha': 0.2}
 }
 
-attributes = BEST_ATTRIBUTES[base_model.prediction]
+BEST_ATTRIBUTES = {
+    'context_SPREAD60_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD60,
+    'context_SPREAD20_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD20
+}
+
+attributes = BEST_ATTRIBUTES[base_model.dataset_name][base_model.prediction]
 
 model = ComplementNB(force_alpha=True, alpha=attributes['alpha'], norm=attributes['norm'])
 model.fit(X_train, y_train)

@@ -1,0 +1,12 @@
+{
+    "accuracy": 0.5324885957504011,
+    "precision": 0.1165452272796561,
+    "recall": 0.5588235294117647,
+    "f1": 0.19286712510531812,
+    "roc_auc": 0.5441937565043973,
+    "precision_recall_auc": 0.3597330812858297,
+    "fbeta_0.5": 0.1384622962980134,
+    "fbeta_2": 0.3176972352329126,
+    "fbeta_3": 0.40509408889859083,
+    "fbeta_4": 0.4568426291599944
+}{'C': 1.0, 'class_weight': None, 'dual': False, 'fit_intercept': True, 'intercept_scaling': 1, 'l1_ratio': None, 'max_iter': 100, 'multi_class': 'auto', 'n_jobs': None, 'penalty': 'l2', 'random_state': 0, 'solver': 'saga', 'tol': 0.0001, 'verbose': 0, 'warm_start': False}

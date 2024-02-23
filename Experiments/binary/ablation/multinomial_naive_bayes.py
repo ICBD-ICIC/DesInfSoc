@@ -7,7 +7,7 @@ start = time.time()
 
 X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
-BEST_ATTRIBUTES = {
+BEST_ATTRIBUTES_SPREAD20 = {
     '28': {'fit_prior': False, 'alpha': 0.2},
     '30': {'fit_prior': False, 'alpha': 0.2},
     '31': {'fit_prior': False, 'alpha': 0.2},
@@ -16,7 +16,22 @@ BEST_ATTRIBUTES = {
     '36': {'fit_prior': False, 'alpha': 0.2}
 }
 
-attributes = BEST_ATTRIBUTES[base_model.prediction]
+BEST_ATTRIBUTES_SPREAD60 = {
+    '28': {'fit_prior': False, 'alpha': 0.2},
+    '30': {'fit_prior': False, 'alpha': 0.2},
+    '31': {'fit_prior': False, 'alpha': 0.2},
+    '32': {'fit_prior': False, 'alpha': 0.2},
+    '34': {'fit_prior': True, 'alpha': 0},
+    '36': {'fit_prior': False, 'alpha': 0.2}
+}
+
+BEST_ATTRIBUTES = {
+    'context_SPREAD60_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD60,
+    'context_SPREAD20_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD20
+}
+
+attributes = BEST_ATTRIBUTES[base_model.dataset_name][base_model.prediction]
+
 
 model = MultinomialNB(force_alpha=True, alpha=attributes['alpha'], fit_prior=attributes['fit_prior'])
 model.fit(X_train, y_train)
