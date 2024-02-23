@@ -113,3 +113,4 @@ with open(OUTPUT_FILE, 'w', newline='') as output_file:
         print('Finish calculating user: {0}. Total seconds: {1}'.format(user_id, time.time()-time_start))
 print('Total users: {}'.format(total_users))
 print('FINISHED')
+
