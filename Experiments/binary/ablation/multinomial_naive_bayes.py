@@ -9,11 +9,11 @@ X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
 BEST_ATTRIBUTES_SPREAD20 = {
     '28': {'fit_prior': False, 'alpha': 0.2},
-    '30': {'fit_prior': False, 'alpha': 0.2},
+    '30': {'fit_prior': True, 'alpha': 100},
     '31': {'fit_prior': False, 'alpha': 0.2},
-    '32': {'fit_prior': False, 'alpha': 0.2},
-    '34': {'fit_prior': True, 'alpha': 0},
-    '36': {'fit_prior': False, 'alpha': 0.2}
+    '32': {'fit_prior': True, 'alpha': 0},
+    '34': {'fit_prior': True, 'alpha': 100},
+    '36': {'fit_prior': True, 'alpha': 100}
 }
 
 BEST_ATTRIBUTES_SPREAD60 = {

@@ -8,11 +8,11 @@ start = time.time()
 X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
 BEST_ATTRIBUTES_SPREAD20 = {
-    '28': {'n_estimators': 100, 'min_samples_leaf': 10},
-    '30': {'n_estimators': 100, 'min_samples_leaf': 10},
+    '28': {'n_estimators': 100, 'min_samples_leaf': 5},
+    '30': {'n_estimators': 100, 'min_samples_leaf': 5},
     '31': {'n_estimators': 100, 'min_samples_leaf': 5},
     '32': {'n_estimators': 100, 'min_samples_leaf': 10},
-    '34': {'n_estimators': 100, 'min_samples_leaf': 10},
+    '34': {'n_estimators': 100, 'min_samples_leaf': 5},
     '36': {'n_estimators': 100, 'min_samples_leaf': 10}
 }
 
