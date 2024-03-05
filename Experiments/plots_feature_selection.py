@@ -6,10 +6,10 @@ import pandas as pd
 from matplotlib.patches import Patch
 
 RESULTS_FOLDER_PATH = 'binary/feature-selection/results/'
-METRIC = 'f1'
+METRIC = 'fbeta_2'
 
 
-HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
+HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
 
 
 def prediction_display_name(prediction_original):

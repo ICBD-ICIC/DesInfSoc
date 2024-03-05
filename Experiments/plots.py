@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-FOLDER_PATH = 'binary/results-all-hyperparameters-balanced/'
-METRIC = 'f1'
+FOLDER_PATH = 'binary/results-all-hyperparameters-imbalanced/'
+METRIC = 'accuracy'
 
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
