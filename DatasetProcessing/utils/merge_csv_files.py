@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-FOLDER_PATH = '../outputs/'
+FOLDER_PATH = '../dataset/outputs/'
 RESULT_FILE = '../dataset/context_SPREAD20_K3_H4_P12.csv'
 
 file_list = os.listdir(FOLDER_PATH)
