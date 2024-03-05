@@ -20,7 +20,7 @@ prediction_duration = timedelta(hours=P)
 one_second = timedelta(seconds=1)
 
 INTERVAL_SIZE = 3000
-SPREAD = 60
+SPREAD = 20
 
 interval_init = INTERVAL_SIZE * int(sys.argv[1])
 interval_end = interval_init + INTERVAL_SIZE
@@ -32,7 +32,10 @@ TWEETS = pd.read_csv('dataset/india-election-tweets-metrics.csv')  # Order by cr
 TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
 TWEETS = TWEETS.set_index('user_id')
 
-OUTPUT_FILE = 'dataset/outputs/context_SPREAD60_K{0}_h{1}_interval_{2}-{3}_{4}.csv'.format(K, H, interval_init, interval_end, time.time())
+OUTPUT_FILE = 'dataset/outputs/context_SPREAD20_K{0}_h{1}_interval_{2}-{3}_{4}.csv'.format(K, H, interval_init,
+                                                                                           interval_end, time.time())
+
+total_users = 0
 
 
 def interval_tweets(friends_tweets, user_tweets):
@@ -101,11 +104,13 @@ with open(OUTPUT_FILE, 'w', newline='') as output_file:
             percentage_non_empty = 100 - percentage_empty
             if abs(percentage_empty - percentage_non_empty) > SPREAD:
                 continue
-
+            total_users += 1
             for interval in intervals:
                 context_values = context(interval[0])
                 ground_truth_values = ground_truth(interval[1])
                 context_prediction = user_context + context_values + ground_truth_values
                 csv_writer.writerow(context_prediction)
         print('Finish calculating user: {0}. Total seconds: {1}'.format(user_id, time.time()-time_start))
+print('Total users: {}'.format(total_users))
 print('FINISHED')
+
