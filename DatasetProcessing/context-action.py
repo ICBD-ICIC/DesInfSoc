@@ -20,6 +20,7 @@ prediction_duration = timedelta(hours=P)
 one_second = timedelta(seconds=1)
 
 INTERVAL_SIZE = 1500
+SPREAD = 20
 
 interval_init = INTERVAL_SIZE * int(sys.argv[1])
 interval_end = interval_init + INTERVAL_SIZE
@@ -31,10 +32,11 @@ TWEETS = pd.read_csv('dataset/india-election-tweets-metrics.csv')  # Order by cr
 TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
 TWEETS = TWEETS.set_index('user_id')
 
-OUTPUT_FILE = 'dataset/outputs/context_K{}_h{}_ONLY-ACTION_interval_{}-{}_{}.csv'.format(K, H,
-                                                                                         interval_init,
-                                                                                         interval_end,
-                                                                                         time.time())
+OUTPUT_FILE = 'dataset/outputs/context_ONLY-ACTION-SPREAD{}_K{}_h{}_interval_{}-{}_{}.csv'.format(SPREAD,
+                                                                                                  K, H,
+                                                                                                  interval_init,
+                                                                                                  interval_end,
+                                                                                                  time.time())
 
 total_users = 0
 
@@ -57,8 +59,7 @@ def interval_tweets(friends_tweets, user_tweets):
         context_tweets = friends_tweets.loc[start_time:(end_time - one_second)]
         if len(context_tweets.index) != 0:
             prediction_tweets = user_tweets.loc[end_time:prediction_end]
-            if len(prediction_tweets.index) != 0:
-                intervals.append((context_tweets, prediction_tweets))
+            intervals.append((context_tweets, prediction_tweets))
         start_time += interval_duration
         end_time += interval_duration
         prediction_end += interval_duration
@@ -99,9 +100,18 @@ with open(OUTPUT_FILE, 'w', newline='') as output_file:
         if len(friends_tweets) != 0:
             user_tweets = TWEETS.loc[user_id]
             intervals = interval_tweets(friends_tweets, user_tweets)
-            if len(intervals) != 0:
+
+            empty_ground_truth = sum(1 for interval in intervals if interval[1].empty)
+            percentage_empty = (empty_ground_truth / len(intervals)) * 100
+            percentage_non_empty = 100 - percentage_empty
+            if abs(percentage_empty - percentage_non_empty) > SPREAD:
+                continue
+
+            action_intervals = [(context_tweets, prediction_tweets) for context_tweets, prediction_tweets in intervals if not prediction_tweets.empty]
+
+            if len(action_intervals) != 0:
                 total_users += 1
-                for interval in intervals:
+                for interval in action_intervals:
                     context_values = context(interval[0])
                     ground_truth_values = ground_truth(interval[1])
                     context_prediction = user_context + context_values + ground_truth_values

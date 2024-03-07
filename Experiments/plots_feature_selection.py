@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib.patches import Patch
 
 RESULTS_FOLDER_PATH = 'binary/feature-selection/results/'
-METRIC = 'fbeta_2'
+METRIC = 'precision_recall_auc'
 
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
