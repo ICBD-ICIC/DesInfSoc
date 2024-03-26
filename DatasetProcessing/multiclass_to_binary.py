@@ -1,6 +1,6 @@
 import pandas as pd
 
-context = pd.read_csv('dataset/context_ONLY-ACTION_K3_H4_P12.csv')
+context = pd.read_csv('dataset/context_ONLY-ACTION-SPREAD20_K3_H4_P12.csv')
 
 # '27': 'abusive_amount_interval'
 # '28': 'abusive_ratio_interval'
@@ -41,5 +41,5 @@ context.iloc[:, [34, 35]] = context.iloc[:, [34, 35]].replace(2, 1)
 context.iloc[:, 36] = context.iloc[:, 36].replace(1, 0)
 context.iloc[:, 36] = context.iloc[:, 36].replace(2, 1)
 
-context.to_csv('dataset/context_ONLY-ACTION_K3_H4_P12-BINARY.csv', index=False)
+context.to_csv('dataset/context_ONLY-ACTION-SPREAD20_K3_H4_P12-BINARY.csv', index=False)
 

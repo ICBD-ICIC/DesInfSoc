@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-FOLDER_PATH = 'binary/results-all-hyperparameters-only-action/'
+FOLDER_PATH = 'binary/results-all-hyperparameters-only-action-imbalanced-spread100/'
 METRIC = 'f1'
 
 
