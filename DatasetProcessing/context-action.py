@@ -20,7 +20,7 @@ prediction_duration = timedelta(hours=P)
 one_second = timedelta(seconds=1)
 
 INTERVAL_SIZE = 1500
-SPREAD = 20
+SPREAD = 60
 
 interval_init = INTERVAL_SIZE * int(sys.argv[1])
 interval_end = interval_init + INTERVAL_SIZE
