@@ -1,6 +1,8 @@
 import sys
 import pandas as pd
 import time
+
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, fbeta_score, roc_auc_score, auc,
                              precision_recall_curve)
@@ -40,10 +42,18 @@ def get_dataset():
     return X, y
 
 
-# Maintains class balance
 def get_train_test_split():
     X, y = get_dataset()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=42)
+
+    print('TOTAL Amount per class, original:')
+    print(y.value_counts())
+    print('TRAIN Amount per class, original:')
+    print(y_train.value_counts())
+    X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
+    print('TRAIN Amount per class, after random under sampler:')
+    print(y_train.value_counts())
+
     return X_train, X_test, y_train, y_test
 
 
