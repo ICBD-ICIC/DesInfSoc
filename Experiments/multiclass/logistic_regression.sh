@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=itrust-logistic_regression
 #SBATCH --mem-per-cpu=8G
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=1
 #SBATCH --array=31
-#SBATCH --time=07-00:00:00
+#SBATCH --time=00-12:00:00
 #SBATCH --output=outputs/logistic_regression-%A-%a.out
 #SBATCH --error=errors/logistic_regression-%A-%a.err
 
