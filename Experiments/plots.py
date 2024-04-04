@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib.patches import Patch
 
 FOLDER_PATH = 'binary/results-all-hyperparameters-only-action-balanced/'
-METRIC = 'f1'
+METRIC = 'recall'
 
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
