@@ -2,8 +2,7 @@ import sys
 import pandas as pd
 import time
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, fbeta_score, roc_auc_score, auc)
-# precision_recall_curve exclusive to binary classification
+from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, fbeta_score)
 from imblearn.under_sampling import RandomUnderSampler
 
 KFOLD = 3
@@ -73,7 +72,4 @@ def get_metrics(y_test, y_pred):
         for beta_option in BETA_OPTIONS:
             metrics['fbeta_{}_{}'.format(average_option, beta_option)] = \
                 fbeta_score(y_test, y_pred, average=average_option, beta=beta_option)
-    # multiclass ROC AUC currently only handles the ‘macro’ and ‘weighted’ averages.
-    metrics['roc_auc_macro'] = {'roc_auc_macro': roc_auc_score(y_test, y_pred, average='macro')}
-    metrics['roc_auc_weighted'] = {'roc_auc_weighted': roc_auc_score(y_test, y_pred, average='weighted')}
     return metrics
