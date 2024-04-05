@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-FOLDER_PATH = 'binary/results-all-hyperparameters-only-action-balanced/'
-METRIC = 'f1'
+FOLDER_PATH = 'multiclass/results-all-hyperparameters-only-action-balanced/'
+METRIC = 'f1_weighted'
 
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
@@ -66,6 +66,6 @@ for axes in p.axes.flat:
 legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
                   for i in range(0, len(colors))]
 plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
-plt.subplots_adjust(right=0.8)
+plt.subplots_adjust(right=0.6)
 
 plt.show()
