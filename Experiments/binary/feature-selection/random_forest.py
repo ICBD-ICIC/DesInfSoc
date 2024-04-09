@@ -16,6 +16,15 @@ BEST_ATTRIBUTES_SPREAD20 = {
     '36': {'n_estimators': 100, 'min_samples_leaf': 10}
 }
 
+BEST_ATTRIBUTES_ONLY_ACTION_SPREAD20 = {
+    '28': {'n_estimators': 100 , 'min_samples_leaf': 5},
+    '30': {'n_estimators': 100, 'min_samples_leaf': 5},
+    '31': {'n_estimators': 100, 'min_samples_leaf': 5},
+    '32': {'n_estimators': 100, 'min_samples_leaf': 10},
+    '34': {'n_estimators': 100, 'min_samples_leaf': 10},
+    '36': {'n_estimators': 100, 'min_samples_leaf': 5}
+}
+
 BEST_ATTRIBUTES_SPREAD60 = {
     '28': {'n_estimators': 100, 'min_samples_leaf': 10},
     '30': {'n_estimators': 100, 'min_samples_leaf': 10},
@@ -25,12 +34,13 @@ BEST_ATTRIBUTES_SPREAD60 = {
     '36': {'n_estimators': 100, 'min_samples_leaf': 10}
 }
 
-BEST_ATTRIBUTES = {
+BEST_ATTRIBUTES_BALANCED = {
     'context_SPREAD60_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD60,
-    'context_SPREAD20_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD20
+    'context_SPREAD20_K3_H4_P12-BINARY': BEST_ATTRIBUTES_SPREAD20,
+    'context_ONLY-ACTION-SPREAD20_K3_H4_P12-BINARY': BEST_ATTRIBUTES_ONLY_ACTION_SPREAD20
 }
 
-attributes = BEST_ATTRIBUTES[base_model.dataset_name][base_model.prediction]
+attributes = BEST_ATTRIBUTES_BALANCED[base_model.dataset_name][base_model.prediction]
 
 model = RandomForestClassifier(n_estimators=attributes['n_estimators'], min_samples_leaf=attributes['min_samples_leaf'])
 model.fit(X_train, y_train)
