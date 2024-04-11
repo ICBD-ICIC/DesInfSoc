@@ -1,0 +1,12 @@
+{
+    "accuracy": 0.5934046722368316,
+    "precision": 0.413185939239701,
+    "recall": 0.2579181476995175,
+    "f1": 0.31759053231288364,
+    "roc_auc": 0.5228471318341122,
+    "precision_recall_auc": 0.4716635390370303,
+    "fbeta_0.5": 0.3687840362523353,
+    "fbeta_2": 0.27887757599701124,
+    "fbeta_3": 0.2679886767382073,
+    "fbeta_4": 0.2637482545548801
+}{'ccp_alpha': 0.0, 'class_weight': None, 'criterion': 'gini', 'max_depth': None, 'max_features': None, 'max_leaf_nodes': None, 'min_impurity_decrease': 0.0, 'min_samples_leaf': 1, 'min_samples_split': 2, 'min_weight_fraction_leaf': 0.0, 'random_state': 0, 'splitter': 'best'}
