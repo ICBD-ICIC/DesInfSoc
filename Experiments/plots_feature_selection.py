@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-RESULTS_FOLDER_PATH = 'binary/feature-selection/results/'
-METRIC = 'precision_recall_auc'
+RESULTS_FOLDER_PATH = 'binary/feature-selection/results-only-action(spread20,balanced)/'
+METRIC = 'f1'
 
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
@@ -70,6 +70,6 @@ for axes in p.axes.flat:
 legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=features[i])
                   for i in range(0, len(colors))]
 plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
-plt.subplots_adjust(right=0.7)
+plt.subplots_adjust(right=0.6)
 
 plt.show()

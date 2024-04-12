@@ -1,3 +1,5 @@
 We run for the best models of each prediction, multiple experiments removing groups of features.
 Best model for all cases is Random Forest. (spread 20, balanced, end-to-end and only-action)
 Hyperparameters vary for each prediction and spread.
+
+IF YOU ARE USING WINDOWS YOU MAY ENCOUNTER PROBLEMS DUE TO FILEPATHS TOO LONG. You have to enable long file paths

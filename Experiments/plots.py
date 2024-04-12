@@ -8,7 +8,6 @@ from matplotlib.patches import Patch
 FOLDER_PATH = 'binary/results-all-hyperparameters-only-action-imbalanced/'
 METRIC = 'f1'
 
-
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
 def prediction_display_name(prediction_original):
