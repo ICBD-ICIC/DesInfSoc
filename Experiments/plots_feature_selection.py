@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-RESULTS_FOLDER_PATH = 'binary/feature-selection/results-only-action(spread20,balanced)/'
+RESULTS_FOLDER_PATH = 'binary/feature-selection/results-all(spread20,balanced)/'
 METRIC = 'f1'
 
 

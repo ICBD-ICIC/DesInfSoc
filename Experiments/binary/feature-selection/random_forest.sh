@@ -11,4 +11,4 @@ features="$1"
 
 source ../../.experiments_env/bin/activate
 
-srun python random_forest.py ${SLURM_ARRAY_TASK_ID} context_ONLY-ACTION-SPREAD20_K3_H4_P12-BINARY "$features"
+srun python random_forest.py ${SLURM_ARRAY_TASK_ID} context_SPREAD20_K3_H4_P12-BINARY "$features"
