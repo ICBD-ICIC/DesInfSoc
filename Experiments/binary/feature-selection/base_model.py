@@ -23,6 +23,7 @@ PREDICTION_MAP = {
 CONTEXT_FEATURES = {
     'emotion': [6, 7, 8, 9, 10, 11, 12, 13],
     'linguistic-ratio': [3, 5, 15, 17, 19, 21],
+    'linguistic-amount': [2, 4, 14, 16, 18, 20],
     'personality': [0, 1],
     'sentiment': [22, 23, 24, 25]
 }
