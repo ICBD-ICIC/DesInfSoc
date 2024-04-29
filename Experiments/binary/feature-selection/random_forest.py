@@ -2,10 +2,12 @@ import base_model
 from sklearn.ensemble import RandomForestClassifier
 import time
 import json
+from sklearn.model_selection import KFold
+
+K = 10
 
 start = time.time()
 
-X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
 BEST_ATTRIBUTES_SPREAD20 = {
     '28': {'n_estimators': 100, 'min_samples_leaf': 5},
@@ -42,17 +44,22 @@ BEST_ATTRIBUTES_BALANCED = {
 
 attributes = BEST_ATTRIBUTES_BALANCED[base_model.dataset_name][base_model.prediction]
 
-model = RandomForestClassifier(n_estimators=attributes['n_estimators'], min_samples_leaf=attributes['min_samples_leaf'])
-model.fit(X_train, y_train)
+X, y = base_model.get_dataset()
+kf = KFold(n_splits=K, shuffle=True, random_state=42)
 
-y_pred = model.predict(X_test)
+metrics = []
 
-print(set(y_test) - set(y_pred))
-
-metrics = base_model.get_metrics(y_test, y_pred)
+for i, (train_index, test_index) in enumerate(kf.split(X, y)):
+    X_train, y_train = base_model.balance_train(X.iloc[train_index], y.iloc[train_index])
+    X_test = X.iloc[test_index]
+    y_test = y.iloc[test_index]
+    model = RandomForestClassifier(n_estimators=attributes['n_estimators'], min_samples_leaf=attributes['min_samples_leaf'])
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    metrics.append(base_model.get_metrics(y_test, y_pred))
+    print('{} done'.format(i))
 
 with open(base_model.get_output_filepath('random_forest'), 'w') as file:
     file.write(json.dumps(metrics, indent=4))
-    file.write(str(model.get_params()))
 
 print('FINISHED after {} seconds'.format(time.time() - start))

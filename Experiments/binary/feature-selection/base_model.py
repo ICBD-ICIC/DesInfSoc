@@ -54,6 +54,10 @@ def get_dataset():
     return X, y
 
 
+def balance_train(X_train, y_train):
+    return RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
+
+
 # Maintains class balance
 def get_train_test_split():
     X, y = get_dataset()
@@ -63,7 +67,7 @@ def get_train_test_split():
     print(y.value_counts())
     print('TRAIN Amount per class, original:')
     print(y_train.value_counts())
-    X_train, y_train = RandomUnderSampler(random_state=42, sampling_strategy=1).fit_resample(X_train, y_train)
+    X_train, y_train = balance_train(X_train, y_train)
     print('TRAIN Amount per class, after random under sampler:')
     print(y_train.value_counts())
 
