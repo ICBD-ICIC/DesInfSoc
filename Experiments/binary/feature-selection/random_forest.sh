@@ -3,7 +3,7 @@
 #SBATCH --mem-per-cpu=2G
 #SBATCH --cpus-per-task=1
 #SBATCH --array=28,30,31,32,34,36
-#SBATCH --time=00-00:20:00
+#SBATCH --time=00-00:10:00
 #SBATCH --output=outputs/random_forest-%A-%a.out
 #SBATCH --error=errors/random_forest-%A-%a.err
 
