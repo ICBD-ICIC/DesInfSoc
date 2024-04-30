@@ -6,7 +6,7 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 
-PARENT_FOLDER = 'binary/feature-selection/'
+PARENT_FOLDER = 'binary/feature-selection/results-t_test(spread20,balanced)/end-to-end/'
 all_items = os.listdir(PARENT_FOLDER)
 experiment_subfolders = [PARENT_FOLDER + item for item in all_items if item.startswith('experiments')]
 file_list = []
@@ -20,8 +20,8 @@ for file in file_list:
     k_metrics = open(file, "r").read()
     k_metrics = json.loads(k_metrics)
     # spread?
-    features = file.split('/')[2].replace('experiments-', '')
-    prediction = file.split(',')[2]
+    features = file.split('/')[4].replace('experiments-', '')
+    prediction = file.split('/')[5].split(',')[2]
     f1_values = []
     recall_values = []
     precision_values = []
