@@ -6,7 +6,7 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 
-PARENT_FOLDER = 'binary/feature-selection/results-t_test(spread20,balanced)/end-to-end/'
+PARENT_FOLDER = 'binary/feature-selection/results-t_test(spread20,balanced)/only-action/'
 all_items = os.listdir(PARENT_FOLDER)
 experiment_subfolders = [PARENT_FOLDER + item for item in all_items if item.startswith('experiments')]
 file_list = []
@@ -41,12 +41,18 @@ all_comparisons = list(itertools.combinations(features, 2))
 query = 'prediction == "{}" & feature == "{}"'
 metrics_to_compare = ['f1', 'precision', 'recall']
 
+t_test_results = []
+
 for metric in ['f1', 'precision', 'recall']:
     for prediction in predictions:
         for feature1, feature2 in all_comparisons:
             data_to_compare1 = dataframe.query(query.format(prediction, feature1))[metric].item()
             data_to_compare2 = dataframe.query(query.format(prediction, feature2))[metric].item()
             t_test = stats.ttest_ind(data_to_compare1, data_to_compare2)
-            print(prediction, '-', metric, '-', feature1, 'vs.', feature2, ':', t_test)
+            t_test_results.append({'metric': metric, 'prediction': prediction, 'feature1': feature1,
+                                   'feature2': feature2, 't_test statistic': t_test.statistic,
+                                   't_test pvalue': t_test.pvalue})
 
-# TODO: create a table and save to file
+# Save results
+results_df = pd.DataFrame(t_test_results)
+results_df.to_csv(PARENT_FOLDER + 't_test_results.csv', index=False)
