@@ -46,6 +46,7 @@ t_test_results = []
 for metric in ['f1', 'precision', 'recall']:
     for prediction in predictions:
         for feature1, feature2 in all_comparisons:
+            # ver que feature 1 contenido en feature 2
             data_to_compare1 = dataframe.query(query.format(prediction, feature1))[metric].item()
             data_to_compare2 = dataframe.query(query.format(prediction, feature2))[metric].item()
             t_test = stats.ttest_ind(data_to_compare1, data_to_compare2)

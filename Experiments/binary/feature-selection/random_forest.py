@@ -2,9 +2,9 @@ import base_model
 from sklearn.ensemble import RandomForestClassifier
 import time
 import json
-from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
 
-K = 10
+N_RUNS = 30
 
 start = time.time()
 
@@ -45,14 +45,13 @@ BEST_ATTRIBUTES_BALANCED = {
 attributes = BEST_ATTRIBUTES_BALANCED[base_model.dataset_name][base_model.prediction]
 
 X, y = base_model.get_dataset()
-kf = KFold(n_splits=K, shuffle=True, random_state=42)
 
 metrics = []
 
-for i, (train_index, test_index) in enumerate(kf.split(X, y)):
-    X_train, y_train = base_model.balance_train(X.iloc[train_index], y.iloc[train_index])
-    X_test = X.iloc[test_index]
-    y_test = y.iloc[test_index]
+for i in range(N_RUNS):
+    X, y = base_model.get_dataset()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=base_model.TEST_SIZE, random_state=i)
+    X_train, y_train = base_model.balance_train(X_train, y_train)
     model = RandomForestClassifier(n_estimators=attributes['n_estimators'], min_samples_leaf=attributes['min_samples_leaf'])
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
