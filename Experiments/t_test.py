@@ -52,6 +52,8 @@ for metric in ['f1', 'precision', 'recall']:
             t_test_results.append({'metric': metric, 'prediction': prediction, 'feature1': feature1,
                                    'feature2': feature2, 't_test statistic': t_test.statistic,
                                    't_test pvalue': t_test.pvalue})
+            if t_test.pvalue > 0.05:
+                print(metric, prediction, feature1, feature2, t_test)
 
 # Save results
 results_df = pd.DataFrame(t_test_results)
