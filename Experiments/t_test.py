@@ -6,7 +6,7 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 
-PARENT_FOLDER = 'binary/feature-selection/results-t_test/only-action/'
+PARENT_FOLDER = 'binary/feature-selection/results-t_test-30_runs(spread20,balanced)/end-to-end/'
 all_items = os.listdir(PARENT_FOLDER)
 experiment_subfolders = [PARENT_FOLDER + item for item in all_items if item.startswith('experiments')]
 file_list = []
@@ -46,15 +46,17 @@ t_test_results = []
 for metric in ['f1', 'precision', 'recall']:
     for prediction in predictions:
         for feature1, feature2 in all_comparisons:
-            # ver que feature 1 contenido en feature 2
-            data_to_compare1 = dataframe.query(query.format(prediction, feature1))[metric].item()
-            data_to_compare2 = dataframe.query(query.format(prediction, feature2))[metric].item()
-            t_test = stats.ttest_ind(data_to_compare1, data_to_compare2)
-            t_test_results.append({'metric': metric, 'prediction': prediction, 'feature1': feature1,
-                                   'feature2': feature2, 't_test statistic': t_test.statistic,
-                                   't_test pvalue': t_test.pvalue})
-            if t_test.pvalue > 0.05:
-                print(metric, prediction, feature1, feature2, t_test)
+            groups1 = set(feature1.split('+'))
+            groups2 = set(feature2.split('+'))
+            if groups1.issubset(groups2) or groups2.issubset(groups1):
+                data_to_compare1 = dataframe.query(query.format(prediction, feature1))[metric].item()
+                data_to_compare2 = dataframe.query(query.format(prediction, feature2))[metric].item()
+                t_test = stats.ttest_ind(data_to_compare1, data_to_compare2)
+                t_test_results.append({'metric': metric, 'prediction': prediction, 'feature1': feature1,
+                                       'feature2': feature2, 't_test statistic': t_test.statistic,
+                                       't_test pvalue': t_test.pvalue})
+                if t_test.pvalue > 0.05:
+                    print(metric, prediction, feature1, feature2, t_test)
 
 # Save results
 results_df = pd.DataFrame(t_test_results)
