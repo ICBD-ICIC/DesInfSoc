@@ -1,11 +1,16 @@
+import json
 import sys
 import pandas as pd
 import time
+
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, fbeta_score)
+from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, fbeta_score,
+                             ConfusionMatrixDisplay, confusion_matrix)
 from imblearn.under_sampling import RandomUnderSampler
 
-KFOLD = 3
+BEST_PARAMS = 'best_params.json'
+
 TEST_SIZE = 0.1
 PREDICTION_MAP = {
     '27': 'abusive_amount_interval',
@@ -63,13 +68,25 @@ def get_output_filepath(model_name):
     return 'experiments/{},{},{},{}'.format(dataset_name, model_name, PREDICTION_MAP[prediction], time.time())
 
 
-def get_metrics(y_test, y_pred):
-    metrics = {'accuracy': accuracy_score(y_test, y_pred)}
+def get_metrics(y_true, y_pred):
+    metrics = {'accuracy': accuracy_score(y_true, y_pred)}
     for average_option in AVERAGE_OPTIONS:
-        metrics['precision_{}'.format(average_option)] = precision_score(y_test, y_pred, average=average_option)
-        metrics['recall_{}'.format(average_option)] = recall_score(y_test, y_pred, average=average_option)
-        metrics['f1_{}'.format(average_option)] = f1_score(y_test, y_pred, average=average_option)
+        metrics['precision_{}'.format(average_option)] = precision_score(y_true, y_pred, average=average_option)
+        metrics['recall_{}'.format(average_option)] = recall_score(y_true, y_pred, average=average_option)
+        metrics['f1_{}'.format(average_option)] = f1_score(y_true, y_pred, average=average_option)
         for beta_option in BETA_OPTIONS:
             metrics['fbeta_{}_{}'.format(average_option, beta_option)] = \
-                fbeta_score(y_test, y_pred, average=average_option, beta=beta_option)
+                fbeta_score(y_true, y_pred, average=average_option, beta=beta_option)
     return metrics
+
+
+def get_best_params(model_name):
+    best_params = json.load(open(BEST_PARAMS))
+    feature = PREDICTION_MAP[prediction]
+    return best_params[dataset_name][model_name][feature]
+
+
+def save_confusion_matrix(y_true, y_pred, model_name):
+    disp = ConfusionMatrixDisplay(confusion_matrix(y_true, y_pred))
+    disp.plot()
+    plt.savefig(get_output_filepath(model_name)+'.png')
