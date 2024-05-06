@@ -6,7 +6,7 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 
-PARENT_FOLDER = 'binary/feature-selection/results-t_test(spread20,balanced)/only-action/'
+PARENT_FOLDER = 'binary/feature-selection/results-t_test/only-action/'
 all_items = os.listdir(PARENT_FOLDER)
 experiment_subfolders = [PARENT_FOLDER + item for item in all_items if item.startswith('experiments')]
 file_list = []
