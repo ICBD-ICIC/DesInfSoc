@@ -1,3 +1,5 @@
+from statistics import mean
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
@@ -5,9 +7,8 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-RESULTS_FOLDER_PATH = 'binary/feature-selection/results-all(spread20,balanced)/'
-METRIC = 'precision'
-
+PARENT_FOLDER = 'binary/feature-selection/results-t_test-30_runs(spread20,balanced)/only-action/'
+METRIC = 'f1'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
 
@@ -45,35 +46,42 @@ def paper_experiment_one(dataframe):
     return df, title
 
 
-folders_list = os.listdir(RESULTS_FOLDER_PATH)
-
 plot_data = []
 
-for folder in folders_list:
-    file_list = os.listdir(RESULTS_FOLDER_PATH + folder)
-    for file in file_list:
-        metrics = open(RESULTS_FOLDER_PATH + folder + "/" + file, "r").read()
-        metrics = " ".join(metrics.split())
-        metrics = metrics.split('}{', 1)[0]
-        metrics = metrics + '}' if metrics[-1] != '}' else metrics
-        metrics = json.loads(metrics)
-        spread = file.split(',')[0].split('_')[1].replace('SPREAD','')
-        model = file.split(',')[1]
-        prediction: str = file.split(',')[2]
-        feature = folder.replace('experiments-', '')
-        for name, value in metrics.items():
-            model_data = {'metric_name': name, 'metric_value': value, 'model': model,
-                          'prediction': prediction, 'spread': spread, 'feature': feature}
-            plot_data.append(model_data)
+all_items = os.listdir(PARENT_FOLDER)
+experiment_subfolders = [PARENT_FOLDER + item for item in all_items if item.startswith('experiments')]
+file_list = []
+
+for folder_path in experiment_subfolders:
+    file_list += list(map(lambda filename: '{}/{}'.format(folder_path, filename), os.listdir(folder_path)))
+
+for file in file_list:
+    k_metrics = open(file, "r").read()
+    k_metrics = json.loads(k_metrics)
+    feature = file.split('/')[4].replace('experiments-', '')
+    prediction = file.split('/')[5].split(',')[2]
+    f1_values = []
+    recall_values = []
+    precision_values = []
+    for instance in k_metrics:
+        f1_values.append(instance['f1'])
+        recall_values.append(instance['recall'])
+        precision_values.append(instance['precision'])
+    plot_data.append({'metric_name': 'f1', 'metric_value': mean(f1_values), 'prediction': prediction,
+                      'feature': feature})
+    plot_data.append({'metric_name': 'recall', 'metric_value': mean(recall_values), 'prediction': prediction,
+                      'feature': feature})
+    plot_data.append({'metric_name': 'precision', 'metric_value': mean(precision_values), 'prediction': prediction,
+                      'feature': feature})
 
 dataframe = pd.DataFrame(plot_data)
-dataframe, title = paper_experiment_one(dataframe)
+#dataframe, title = paper_experiment_one(dataframe)
 dataframe = dataframe.loc[dataframe['metric_name'] == METRIC]
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
 
-p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="feature", col='spread', kind="bar",
+p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="feature", kind="bar",
                 edgecolor='black', legend=False)
 p.set(xlabel=None, ylabel=None)
 p.set_titles("{col_name}")
@@ -97,6 +105,6 @@ legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i]
 plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
 plt.subplots_adjust(right=0.6)
 
-plt.title(title)
+#plt.title(title)
 
 plt.show()

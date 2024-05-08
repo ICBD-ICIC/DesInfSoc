@@ -51,12 +51,12 @@ for metric in ['f1', 'precision', 'recall']:
             if groups1.issubset(groups2) or groups2.issubset(groups1):
                 data_to_compare1 = dataframe.query(query.format(prediction, feature1))[metric].item()
                 data_to_compare2 = dataframe.query(query.format(prediction, feature2))[metric].item()
-                t_test = stats.ttest_ind(data_to_compare1, data_to_compare2)
+                t_test = stats.ttest_ind(data_to_compare1, data_to_compare2, random_state=42)
                 t_test_results.append({'metric': metric, 'prediction': prediction, 'feature1': feature1,
                                        'feature2': feature2, 't_test statistic': t_test.statistic,
                                        't_test pvalue': t_test.pvalue})
-                if t_test.pvalue > 0.05:
-                    print(metric, prediction, feature1, feature2, t_test)
+                # if t_test.pvalue > 0.05:
+                #     print(metric, prediction, feature1, feature2, t_test)
 
 # Save results
 results_df = pd.DataFrame(t_test_results)

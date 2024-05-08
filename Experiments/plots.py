@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib.patches import Patch
 
 FOLDER_PATH = 'multiclass/results-all-hyperparameters-only-action-balanced/'
-METRIC = 'f1_macro'
+METRIC = 'f1_weighted'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
