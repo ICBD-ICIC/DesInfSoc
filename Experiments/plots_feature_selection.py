@@ -7,11 +7,12 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-PARENT_FOLDER = 'binary/feature-selection/results-t_test-30_runs(spread20,balanced)/only-action/'
-METRIC = 'f1'
+FOLDER_PATHS = ['binary/feature-selection/results-t_test-30_runs(spread20,balanced)/only-action/',
+                'binary/feature-selection/results-t_test-30_runs(spread20,balanced)/end-to-end/']
+METRIC = 'recall'
+TITLE = 'Recall - average of 30 runs'
 
-HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
-
+HATCHES = ['\\\\', '-', '//', '..', '', '++', 'oo', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
 
 def paper_experiment_one(dataframe):
     features = {'emotion': 'Only emotion',
@@ -26,10 +27,12 @@ def paper_experiment_one(dataframe):
                 'emotion+linguistic-ratio+sentiment': 'Emotion + Sentiment + Linguistic Ratio',
                 'personality+sentiment': 'Personality + Sentiment',
                 'linguistic-ratio+personality+sentiment': 'Personality + Sentiment + Linguistic Ratio',
-                'emotion+sentiment+personality': 'Emotion + Sentiment + Personality',
-                'emotion+linguistic-ratio+sentiment+personality': 'Emotion + Sentiment + Personality + Linguistic Ratio',
+                'emotion+personality+sentiment': 'Emotion + Sentiment + Personality',
+                'emotion+linguistic-ratio+personality+sentiment': 'Emotion + Sentiment + Personality + Linguistic Ratio',
+                'emotion+linguistic-ratio+personality+sentiment+linguistic-amount': 'All'
                 }
-    df = dataframe.loc[dataframe['feature'].isin(features.keys())]
+    df = dataframe.copy()
+    df = df.loc[dataframe['feature'].isin(features.keys())]
     df['feature'] = pd.Categorical(df['feature'], categories=features.keys(), ordered=True)
     df['feature'] = df['feature'].replace(features)
 
@@ -42,14 +45,19 @@ def paper_experiment_one(dataframe):
     df['prediction'] = df['prediction'].replace(predictions)
 
     df = df.sort_values(by=['feature', 'prediction'])
-    title = 'Precision: End to end, Spread = 20'
-    return df, title
+
+    df['experiment_type'] = df['experiment_type'].str.replace('-', ' ').str.capitalize()
+
+    return df
 
 
 plot_data = []
 
-all_items = os.listdir(PARENT_FOLDER)
-experiment_subfolders = [PARENT_FOLDER + item for item in all_items if item.startswith('experiments')]
+experiment_subfolders = []
+for folder_path in FOLDER_PATHS:
+    all_items = os.listdir(folder_path)
+    experiment_subfolders.extend([folder_path + item for item in all_items if item.startswith('experiments')])
+
 file_list = []
 
 for folder_path in experiment_subfolders:
@@ -63,28 +71,27 @@ for file in file_list:
     f1_values = []
     recall_values = []
     precision_values = []
+    experiment_type = file.split('/')[3]
     for instance in k_metrics:
         f1_values.append(instance['f1'])
         recall_values.append(instance['recall'])
         precision_values.append(instance['precision'])
     plot_data.append({'metric_name': 'f1', 'metric_value': mean(f1_values), 'prediction': prediction,
-                      'feature': feature})
+                      'feature': feature, 'experiment_type': experiment_type})
     plot_data.append({'metric_name': 'recall', 'metric_value': mean(recall_values), 'prediction': prediction,
-                      'feature': feature})
+                      'feature': feature, 'experiment_type': experiment_type})
     plot_data.append({'metric_name': 'precision', 'metric_value': mean(precision_values), 'prediction': prediction,
-                      'feature': feature})
+                      'feature': feature, 'experiment_type': experiment_type})
 
 dataframe = pd.DataFrame(plot_data)
-#dataframe, title = paper_experiment_one(dataframe)
+dataframe = paper_experiment_one(dataframe)
 dataframe = dataframe.loc[dataframe['metric_name'] == METRIC]
 
 sns.set_style("whitegrid")
-sns.set_palette("pastel")
 
-p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="feature", kind="bar",
+p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="feature", kind="bar", col='experiment_type',
                 edgecolor='black', legend=False)
 p.set(xlabel=None, ylabel=None)
-p.set_titles("{col_name}")
 
 colors = []
 features = dataframe['feature'].unique()
@@ -102,9 +109,8 @@ for axes in p.axes.flat:
 
 legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=features[i])
                   for i in range(0, len(colors))]
-plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
-plt.subplots_adjust(right=0.6)
-
-#plt.title(title)
-
+plt.legend(handles=legend_patches,  borderaxespad=0, fontsize=10,
+           ncols=4, loc='lower center', bbox_to_anchor=(-1, -0.25, 2, 1))
+plt.suptitle(TITLE, size=16)
+plt.subplots_adjust(top=0.9, bottom=0.2)
 plt.show()

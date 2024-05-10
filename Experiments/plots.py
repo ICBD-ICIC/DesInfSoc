@@ -23,7 +23,6 @@ def paper_experiments(dataframe):
     df = dataframe
     df['prediction'] = df['prediction'].replace(predictions)
     df['spread'] = df['spread'].str[-2:]
-    print(df['experiment_type'])
     df['experiment_type'] = df['experiment_type'].str.replace('-', ' ').str.capitalize()
     df = df.sort_values(by=['prediction'])
     return df
