@@ -10,8 +10,8 @@ FOLDER_PATHS_BALANCED = ['binary/results-all-hyperparameters-balanced(only-actio
 FOLDER_PATHS_IMBALANCED = ['binary/results-all-hyperparameters-imbalanced(only-action)/',
                            'binary/results-all-hyperparameters-imbalanced(end-to-end)/']
 FOLDER_PATHS = FOLDER_PATHS_IMBALANCED
-METRIC = 'precision'
-TITLE = 'Precision'
+METRIC = 'f1'
+TITLE = 'F1 score'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
