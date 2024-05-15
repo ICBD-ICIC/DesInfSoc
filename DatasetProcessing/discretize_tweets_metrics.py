@@ -47,7 +47,9 @@ def discretize_column_values(tweets, column_name, mean, std):
         return 0
     amount_average = tweets[column_name].mean()
     density = norm.cdf(amount_average, loc=mean, scale=std)
-    return discretize_percentage(density)
+    return_value = discretize_percentage(density)
+    print(amount_average, density, return_value)
+    return return_value
 
 
 # 0: x = y
@@ -63,11 +65,9 @@ def discretize_comparison(x, y):
 
 
 def discretize_abusive(tweets):
-    abusive_amount_interval = discretize_column_values(tweets, 'abusive_words_n', ABUSIVE_AMOUNT_MEAN,
-                                                       ABUSIVE_AMOUNT_DEVIATION)
     abusive_ratio_interval = discretize_column_values(tweets, 'abusive_words_ratio', ABUSIVE_RATIO_MEAN,
                                                       ABUSIVE_RATIO_DEVIATION)
-    return abusive_amount_interval, abusive_ratio_interval
+    return (abusive_ratio_interval,)
 
 
 def discretize_polarization(tweets):

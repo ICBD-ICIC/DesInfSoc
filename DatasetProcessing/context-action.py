@@ -5,6 +5,7 @@ import csv
 from datetime import timedelta
 from ast import literal_eval
 from discretize_tweets_metrics import *
+import matplotlib.pyplot as plt
 
 pd.set_option("max_colwidth", 200)
 pd.set_option("display.max_columns", None)
@@ -20,15 +21,23 @@ prediction_duration = timedelta(hours=P)
 one_second = timedelta(seconds=1)
 
 INTERVAL_SIZE = 1500
-SPREAD = 60
+SPREAD = 100
 
-interval_init = INTERVAL_SIZE * int(sys.argv[1])
+interval_init = INTERVAL_SIZE * 0
 interval_end = interval_init + INTERVAL_SIZE
 
 USERS = pd.read_csv('dataset/user-metrics-with-friends.csv', converters={"friends": literal_eval})
 USERS = USERS.iloc[interval_init:interval_end].set_index('user_id')
 
 TWEETS = pd.read_csv('dataset/india-election-tweets-metrics.csv')  # Order by created_at ascending
+print(TWEETS['abusive_words_ratio'].mean())
+# print(TWEETS['abusive_words_ratio'].value_counts().sort_index())
+TWEETS['vice_ratio'].value_counts().sort_index().plot(kind='bar')
+plt.show()
+TWEETS['positive_words_ratio'].value_counts().sort_index().plot(kind='bar')
+plt.show()
+TWEETS['negative_words_ratio'].value_counts().sort_index().plot(kind='bar')
+plt.show()
 TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
 TWEETS = TWEETS.set_index('user_id')
 
@@ -67,25 +76,10 @@ def interval_tweets(friends_tweets, user_tweets):
 
 
 def context(tweets):
-    return discretize_abusive(tweets) + \
-        discretize_polarization(tweets) + \
-        predominant_emotion(tweets) + \
-        discretize_emotions(tweets) + \
-        discretize_mfd(tweets) + \
-        discretize_valence(tweets) + \
-        predominant_sentiment(tweets) + \
-        discretize_sentiments(tweets) + \
-        (len(tweets),)
-
+    return discretize_abusive(tweets)
 
 def ground_truth(tweets):
-    return discretize_abusive(tweets) + \
-        discretize_polarization(tweets) + \
-        predominant_emotion(tweets) + \
-        prediction_mfd(tweets) + \
-        prediction_valence(tweets) + \
-        predominant_sentiment(tweets) + \
-        (len(tweets),)
+    return discretize_abusive(tweets)
 
 
 with open(OUTPUT_FILE, 'w', newline='') as output_file:
