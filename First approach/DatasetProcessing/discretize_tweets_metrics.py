@@ -1,7 +1,32 @@
 from scipy.stats import norm
-import pandas as pd
 
-STATISTICS = pd.read_csv('linguistic_cues_statistics.csv')
+ABUSIVE_AMOUNT_MEAN = 0.10702764477410749
+ABUSIVE_AMOUNT_DEVIATION = 0.3427292211597213
+ABUSIVE_RATIO_MEAN = 0.013878248870572424
+ABUSIVE_RATIO_DEVIATION = 0.04915942808971903
+
+POLARIZATION_AMOUNT_MEAN = 0.3227449630764257
+POLARIZATION_AMOUNT_DEVIATION = 0.5953114534859781
+POLARIZATION_RATIO_MEAN = 0.04116681048357415
+POLARIZATION_RATIO_DEVIATION = 0.08109465282505017
+
+MFD_VICE_AMOUNT_MEAN = 0.1824626892761546
+MFD_VICE_AMOUNT_DEVIATION = 0.44720561427572014
+MFD_VICE_RATIO_MEAN = 0.023256898824071653
+MFD_VICE_RATIO_DEVIATION = 0.06142892074228623
+MFD_VIRTUE_AMOUNT_MEAN = 0.41211798998759724
+MFD_VIRTUE_AMOUNT_DEVIATION = 0.6540318578939741
+MFD_VIRTUE_RATIO_MEAN = 0.05244393412356305
+MFD_VIRTUE_RATIO_DEVIATION = 0.08949401967338455
+
+VALENCE_POSITIVE_AMOUNT_MEAN = 1.2712786871138455
+VALENCE_POSITIVE_AMOUNT_DEVIATION = 1.1603875798860945
+VALENCE_POSITIVE_RATIO_MEAN = 0.16419792907010802
+VALENCE_POSITIVE_RATIO_DEVIATION = 0.15448028055614837
+VALENCE_NEGATIVE_AMOUNT_MEAN = 1.0355423580213619
+VALENCE_NEGATIVE_AMOUNT_DEVIATION = 1.099979369329647
+VALENCE_NEGATIVE_RATIO_MEAN = 0.13304868421776658
+VALENCE_NEGATIVE_RATIO_DEVIATION = 0.14619110840600053
 
 EMOTIONS_CATEGORIES = ['neutral', 'anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise']
 #                       0           1         2          3       4         5           6
@@ -17,12 +42,10 @@ def discretize_percentage(value):
     return min(int(value * 4), 3)
 
 
-def discretize_column_values(tweets, column_name):
+def discretize_column_values(tweets, column_name, mean, std):
     if len(tweets.index) == 0:
         return 0
     amount_average = tweets[column_name].mean()
-    mean = STATISTICS[column_name]['mean']
-    std = STATISTICS[column_name]['std']
     density = norm.cdf(amount_average, loc=mean, scale=std)
     return discretize_percentage(density)
 
@@ -40,22 +63,30 @@ def discretize_comparison(x, y):
 
 
 def discretize_abusive(tweets):
-    abusive_amount_interval = discretize_column_values(tweets, 'abusive_words_n')
-    abusive_ratio_interval = discretize_column_values(tweets, 'abusive_words_ratio')
+    abusive_amount_interval = discretize_column_values(tweets, 'abusive_words_n', ABUSIVE_AMOUNT_MEAN,
+                                                       ABUSIVE_AMOUNT_DEVIATION)
+    abusive_ratio_interval = discretize_column_values(tweets, 'abusive_words_ratio', ABUSIVE_RATIO_MEAN,
+                                                      ABUSIVE_RATIO_DEVIATION)
     return abusive_amount_interval, abusive_ratio_interval
 
 
 def discretize_polarization(tweets):
-    polarization_amount_interval = discretize_column_values(tweets, 'polar_words_n')
-    polarization_ratio_interval = discretize_column_values(tweets, 'polar_words_ratio')
+    polarization_amount_interval = discretize_column_values(tweets, 'polar_words_n',
+                                                            POLARIZATION_AMOUNT_MEAN, POLARIZATION_AMOUNT_DEVIATION)
+    polarization_ratio_interval = discretize_column_values(tweets, 'polar_words_ratio',
+                                                           POLARIZATION_RATIO_MEAN, POLARIZATION_RATIO_DEVIATION)
     return polarization_amount_interval, polarization_ratio_interval
 
 
 def discretize_mfd(tweets):
-    mfd_virtue_amount = discretize_column_values(tweets, 'virtue_n')
-    mfd_virtue_ratio = discretize_column_values(tweets, 'virtue_ratio')
-    mfd_vice_amount = discretize_column_values(tweets, 'vice_n')
-    mfd_vice_ratio = discretize_column_values(tweets, 'vice_ratio')
+    mfd_virtue_amount = discretize_column_values(tweets, 'virtue_n', MFD_VIRTUE_AMOUNT_MEAN,
+                                                 MFD_VIRTUE_AMOUNT_DEVIATION)
+    mfd_virtue_ratio = discretize_column_values(tweets, 'virtue_ratio', MFD_VIRTUE_RATIO_MEAN,
+                                                MFD_VIRTUE_RATIO_DEVIATION)
+    mfd_vice_amount = discretize_column_values(tweets, 'vice_n', MFD_VICE_AMOUNT_MEAN,
+                                               MFD_VICE_AMOUNT_DEVIATION)
+    mfd_vice_ratio = discretize_column_values(tweets, 'vice_ratio', MFD_VICE_RATIO_MEAN,
+                                              MFD_VICE_RATIO_DEVIATION)
     return mfd_virtue_amount, mfd_virtue_ratio, mfd_vice_amount, mfd_vice_ratio
 
 
@@ -70,10 +101,14 @@ def prediction_mfd(tweets):
 
 
 def discretize_valence(tweets):
-    valence_positive_amount = discretize_column_values(tweets, 'positive_words_n')
-    valence_positive_ratio = discretize_column_values(tweets, 'positive_words_ratio')
-    valence_negative_amount = discretize_column_values(tweets, 'negative_words_n')
-    valence_negative_ratio = discretize_column_values(tweets, 'negative_words_ratio')
+    valence_positive_amount = discretize_column_values(tweets, 'positive_words_n',
+                                                       VALENCE_POSITIVE_AMOUNT_MEAN, VALENCE_POSITIVE_AMOUNT_DEVIATION)
+    valence_positive_ratio = discretize_column_values(tweets, 'positive_words_ratio',
+                                                      VALENCE_POSITIVE_RATIO_MEAN, VALENCE_POSITIVE_RATIO_DEVIATION)
+    valence_negative_amount = discretize_column_values(tweets, 'negative_words_n',
+                                                       VALENCE_NEGATIVE_AMOUNT_MEAN, VALENCE_NEGATIVE_AMOUNT_DEVIATION)
+    valence_negative_ratio = discretize_column_values(tweets, 'negative_words_ratio',
+                                                      VALENCE_NEGATIVE_RATIO_MEAN, VALENCE_NEGATIVE_RATIO_DEVIATION)
     return valence_positive_amount, valence_positive_ratio, valence_negative_amount, valence_negative_ratio
 
 
