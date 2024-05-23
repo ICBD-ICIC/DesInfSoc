@@ -88,7 +88,7 @@ def prediction_mfd(tweets):
      mfd_vice_amount, mfd_vice_ratio, has_vice) = discretize_mfd(tweets)
     mfd_amount = discretize_comparison(mfd_virtue_amount, mfd_vice_amount, has_virtue, has_vice)
     mfd_ratio = discretize_comparison(mfd_virtue_ratio, mfd_vice_ratio, has_virtue, has_vice)
-    return mfd_amount, mfd_ratio
+    return mfd_amount, mfd_ratio, has_virtue, has_vice
 
 
 def discretize_valence(tweets):
