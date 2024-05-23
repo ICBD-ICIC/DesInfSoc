@@ -20,7 +20,7 @@ prediction_duration = timedelta(hours=P)
 one_second = timedelta(seconds=1)
 
 INTERVAL_SIZE = 1500
-SPREAD = 60
+SPREAD = 100
 
 interval_init = INTERVAL_SIZE * int(sys.argv[1])
 interval_end = interval_init + INTERVAL_SIZE
@@ -32,7 +32,7 @@ TWEETS = pd.read_csv('dataset/india-election-tweets-metrics.csv')  # Order by cr
 TWEETS['created_at'] = pd.to_datetime(TWEETS['created_at'])
 TWEETS = TWEETS.set_index('user_id')
 
-OUTPUT_FILE = 'dataset/outputs/context_ONLY-ACTION-SPREAD{}_K{}_h{}_interval_{}-{}_{}.csv'.format(SPREAD,
+OUTPUT_FILE = 'dataset/outputs/context2_ONLY-ACTION-SPREAD{}_K{}_h{}_interval_{}-{}_{}.csv'.format(SPREAD,
                                                                                                   K, H,
                                                                                                   interval_init,
                                                                                                   interval_end,

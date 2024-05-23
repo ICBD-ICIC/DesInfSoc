@@ -28,4 +28,4 @@ for linguistic_cue in LINGUISTIC_CUES:
     })
 
 statistics_dataframe = pd.DataFrame(statistics)
-statistics_dataframe.to_csv(OUTPUT_FILE_PATH)
+statistics_dataframe.to_csv(OUTPUT_FILE_PATH, index=False)
