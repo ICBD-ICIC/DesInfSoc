@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 FOLDER_PATH = 'dataset/outputs'
-RESULT_FILE = 'dataset/context2_ONLY-ACTION-SPREAD100_K3_H4_P12.csv'
+RESULT_FILE = 'dataset/context2_ONLY-ACTION-SPREAD20_K3_H4_P12-MULTICLASS.csv'
 
 file_list = os.listdir(FOLDER_PATH)
 

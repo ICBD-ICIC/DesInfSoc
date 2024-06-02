@@ -9,4 +9,4 @@
 
 source ../.experiments_env/bin/activate
 
-srun python complement_naive_bayes.py ${SLURM_ARRAY_TASK_ID} context2_ONLY-ACTION-SPREAD100_K3_H4_P12-BINARY
+srun python complement_naive_bayes.py ${SLURM_ARRAY_TASK_ID} context2_ONLY-ACTION-SPREAD20_K3_H4_P12-BINARY

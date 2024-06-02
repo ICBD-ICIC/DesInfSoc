@@ -1,6 +1,6 @@
 import pandas as pd
 
-original_path = 'dataset/context2_ONLY-ACTION-SPREAD100_K3_H4_P12-MULTICLASS.csv'
+original_path = 'dataset/context2_ONLY-ACTION-SPREAD20_K3_H4_P12-MULTICLASS.csv'
 context = pd.read_csv(original_path)
 
 # '33': 'abusive_amount_interval'
