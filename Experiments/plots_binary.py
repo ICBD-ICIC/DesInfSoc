@@ -5,9 +5,9 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-FOLDER_PATHS = ['binary/experiments']
+FOLDER_PATHS = ['binary/comparison']
 METRIC = 'f1'
-TITLE = 'F1 score'
+TITLE = 'F1 score - first approach'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
