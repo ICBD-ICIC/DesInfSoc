@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-FOLDER_PATHS = ['binary/comparison']
+FOLDER_PATHS = ['binary/experiments']
 METRIC = 'f1'
 TITLE = 'F1 score - first approach'
 
@@ -42,7 +42,7 @@ sns.set_style("whitegrid")
 sns.set_palette("pastel")
 
 p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="model", col='spread', kind="bar",
-                edgecolor='black')
+                edgecolor='black', legend=False)
 p.set(xlabel=None, ylabel=None)
 
 colors = []
@@ -55,11 +55,11 @@ for axes in p.axes.flat:
         bar_color = bar.get_facecolor()
         colors.append(bar_color) if bar_color not in colors else colors
         bar.set_hatch(HATCHES[colors.index(bar_color)])
-    # shows label with value of each bar
-    # for i in axes.containers:
-    #     axes.bar_label(i, )
 
-# plt.tight_layout()
+legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
+                  for i in range(0, len(colors))]
+plt.legend(handles=legend_patches, bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0, fontsize=10)
+
 plt.suptitle(TITLE, size=16)
-plt.subplots_adjust(top=0.9)
+plt.subplots_adjust(top=0.9, right=0.8)
 plt.show()
