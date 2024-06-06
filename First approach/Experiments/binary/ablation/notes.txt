@@ -1,0 +1,2 @@
+First approach on feature selection, we tried discarding features.
+Then we did "feature-selection" by starting from a feature and adding more groups.
