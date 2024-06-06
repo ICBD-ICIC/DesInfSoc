@@ -1,0 +1,12 @@
+{
+    "accuracy": 0.5570718795426439,
+    "precision": 0.39742973816958926,
+    "recall": 0.38931701864815577,
+    "f1": 0.3933315503253989,
+    "roc_auc": 0.5222056013081285,
+    "precision_recall_auc": 0.5059875547122723,
+    "fbeta_0.5": 0.39578025763393015,
+    "fbeta_2": 0.39091295718741137,
+    "fbeta_3": 0.39011335569401623,
+    "fbeta_4": 0.3897850579969234
+}{'activation': 'relu', 'alpha': 0.0001, 'batch_size': 50, 'beta_1': 0.9, 'beta_2': 0.999, 'early_stopping': False, 'epsilon': 1e-08, 'hidden_layer_sizes': (35, 35), 'learning_rate': 'constant', 'learning_rate_init': 0.001, 'max_fun': 15000, 'max_iter': 200, 'momentum': 0.9, 'n_iter_no_change': 10, 'nesterovs_momentum': True, 'power_t': 0.5, 'random_state': None, 'shuffle': True, 'solver': 'adam', 'tol': 0.0001, 'validation_fraction': 0.1, 'verbose': False, 'warm_start': False}{'hidden_layer_sizes': (35, 35), 'batch_size': 50}
