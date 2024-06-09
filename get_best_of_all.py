@@ -102,9 +102,9 @@ def get_plot(df, best_idx, metric_name, metrics_names):
     fig.suptitle(title)
     ax.set_title(subtitle, loc='center')
     plt.subplots_adjust(left=0.25, top=0.85)
-    max_value = filtered_df[metric_name].max()
+    max_value = round(filtered_df[metric_name].max(), 2)
     for bar in bars:
-        width = bar.get_width()
+        width = round(bar.get_width(), 2)
         if width == max_value:
             bar.set_color('red')
         ax.text(width + 0.01 * width, bar.get_y() + bar.get_height() / 2, f'{width:.2f}',
