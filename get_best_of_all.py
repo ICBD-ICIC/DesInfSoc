@@ -77,6 +77,8 @@ def get_plot_title(best, metric_name):
 
 def get_plot(df, best_idx, metric_name, metrics_names):
     columns_to_drop = metrics_names + ['file_path', 'model']
+    print(df.loc[best_idx])
+    print(df.iloc[best_idx])
     filtering_criteria = df.iloc[best_idx].drop(columns_to_drop)
 
     filtering_condition = pd.Series([True] * len(df))
@@ -112,22 +114,33 @@ def get_plot(df, best_idx, metric_name, metrics_names):
     plt.show()
 
 
-# BINARY #
-print('BINARY')
-metrics_names = ['f1']
-df = get_metrics_values(get_all_results_files(BINARY_FOLDERS), metrics_names)
-for prediction in df['prediction'].unique():
-    best_result_idx = df.loc[df['prediction'] == prediction]['f1'].idxmax()
-    get_plot(df, best_result_idx, 'f1', metrics_names)
+# # BINARY #
+# print('BINARY')
+# metrics_names = ['f1']
+# df = get_metrics_values(get_all_results_files(BINARY_FOLDERS), metrics_names)
+# for prediction in df['prediction'].unique():
+#     best_result_idx = df.loc[df['prediction'] == prediction]['f1'].idxmax()
+#     get_plot(df, best_result_idx, 'f1', metrics_names)
+#
+# # MULTICLASS #
+# print('MULTICLASS')
+# metrics_names = ['f1_micro', 'f1_macro', 'f1_weighted']
+# df = get_metrics_values(get_all_results_files(MULTICLASS_FOLDERS), metrics_names)
+# for prediction in df['prediction'].unique():
+#     best_result_idx = df.loc[df['prediction'] == prediction]['f1_micro'].idxmax()
+#     get_plot(df, best_result_idx, 'f1_micro', metrics_names)
+#     best_result_idx = df.loc[df['prediction'] == prediction]['f1_macro'].idxmax()
+#     get_plot(df, best_result_idx, 'f1_macro', metrics_names)
+#     best_result_idx = df.loc[df['prediction'] == prediction]['f1_weighted'].idxmax()
+#     get_plot(df, best_result_idx, 'f1_weighted', metrics_names)
 
-# MULTICLASS #
-print('MULTICLASS')
-metrics_names = ['f1_micro', 'f1_macro', 'f1_weighted']
+# Best sentiment and emotion discarding Random Guessing
+metrics_names = ['f1_micro', 'f1_weighted', 'f1_macro']
+predictions = ['predominant_sentiment', 'predominant_emotion']
 df = get_metrics_values(get_all_results_files(MULTICLASS_FOLDERS), metrics_names)
-for prediction in df['prediction'].unique():
-    best_result_idx = df.loc[df['prediction'] == prediction]['f1_micro'].idxmax()
+filtered_df = df[df['model'] != 'Random guessing']
+for prediction in predictions:
+    best_result_idx = filtered_df.loc[filtered_df['prediction'] == prediction]['f1_micro'].idxmax()
     get_plot(df, best_result_idx, 'f1_micro', metrics_names)
-    best_result_idx = df.loc[df['prediction'] == prediction]['f1_macro'].idxmax()
-    get_plot(df, best_result_idx, 'f1_macro', metrics_names)
-    best_result_idx = df.loc[df['prediction'] == prediction]['f1_weighted'].idxmax()
+    best_result_idx = filtered_df.loc[filtered_df['prediction'] == prediction]['f1_weighted'].idxmax()
     get_plot(df, best_result_idx, 'f1_weighted', metrics_names)
