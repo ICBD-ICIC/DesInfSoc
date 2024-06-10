@@ -2,7 +2,7 @@
 #SBATCH --job-name=itrust-decision_tree
 #SBATCH --mem-per-cpu=4G
 #SBATCH --cpus-per-task=1
-#SBATCH --array=34,37,39,40,44,48
+#SBATCH --array=34,37,39,41,45,48
 #SBATCH --time=00-01:00:00
 #SBATCH --output=outputs/decision_tree-%A-%a.out
 #SBATCH --error=errors/decision_tree-%A-%a.err
