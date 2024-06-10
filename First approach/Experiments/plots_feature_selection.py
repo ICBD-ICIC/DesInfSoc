@@ -93,6 +93,14 @@ dataframe = pd.DataFrame(plot_data)
 dataframe = paper_experiment_one(dataframe)
 dataframe = dataframe.loc[dataframe['metric_name'] == METRIC]
 
+for prediction in dataframe['prediction'].unique():
+    best_result_idx = dataframe.loc[(dataframe['prediction'] == prediction) & (dataframe['approach'] == 'End to end')][
+        'metric_value'].idxmax()
+    print(prediction, 'end-to-end', dataframe.loc[best_result_idx]['feature'])
+    best_result_idx = dataframe.loc[(dataframe['prediction'] == prediction) & (dataframe['approach'] == 'Only action')][
+        'metric_value'].idxmax()
+    print(prediction, 'only-action', dataframe.loc[best_result_idx]['feature'])
+
 sns.set_style("whitegrid")
 
 p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="feature", kind="bar", col='approach',
