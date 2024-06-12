@@ -5,9 +5,9 @@ import os
 import pandas as pd
 from matplotlib.patches import Patch
 
-FOLDER_PATHS = ['binary/experiments']
+FOLDER_PATHS = ['binary/experiments(spread20,balanced,only-action)']
 METRIC = 'f1'
-TITLE = 'F1 score - first approach'
+TITLE = 'F1 score - new approach'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
@@ -27,9 +27,10 @@ for file in file_list:
     metrics = metrics.split('}{', 1)[0]
     metrics = metrics + '}' if metrics[-1] != '}' else metrics
     metrics = json.loads(metrics)
-    spread = file.split(',')[0].split('_')[1].replace('SPREAD', '')
-    model = file.split(',')[1]
-    prediction = file.split(',')[2]
+    filename = file.replace('\\', '/').split('/')[-1]
+    spread = filename.split(',')[0].split('_')[1].replace('SPREAD', '')
+    model = filename.split(',')[1]
+    prediction = filename.split(',')[2]
     for name, value in metrics.items():
         model_data = {'metric_name': name, 'metric_value': value, 'model': model,
                       'prediction': prediction, 'spread': spread}
