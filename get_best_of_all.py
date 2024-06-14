@@ -1,6 +1,7 @@
 import json
 import os
 
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
@@ -77,8 +78,6 @@ def get_plot_title(best, metric_name):
 
 def get_plot(df, best_idx, metric_name, metrics_names):
     columns_to_drop = metrics_names + ['file_path', 'model']
-    print(df.loc[best_idx])
-    print(df.iloc[best_idx])
     filtering_criteria = df.iloc[best_idx].drop(columns_to_drop)
 
     filtering_condition = pd.Series([True] * len(df))
@@ -101,9 +100,10 @@ def get_plot(df, best_idx, metric_name, metrics_names):
             alpha=0.2)
     ax.set_xlabel(f"{metric_name.replace('_', ' ').capitalize()}")
     title, subtitle = get_plot_title(df.iloc[best_idx], metric_name)
-    fig.suptitle(title)
+    #fig.suptitle(title)
     ax.set_title(subtitle, loc='center')
-    plt.subplots_adjust(left=0.25, top=0.85)
+    #plt.subplots_adjust(left=0.25, top=0.85)
+    plt.subplots_adjust(left=0.25, top=0.9)
     max_value = round(filtered_df[metric_name].max(), 2)
     for bar in bars:
         width = round(bar.get_width(), 2)
@@ -111,7 +111,8 @@ def get_plot(df, best_idx, metric_name, metrics_names):
             bar.set_color('red')
         ax.text(width + 0.01 * width, bar.get_y() + bar.get_height() / 2, f'{width:.2f}',
                 va='center', ha='left')
-    plt.show()
+    plt.xticks(np.arange(0, 1.1, 0.1))
+    plt.savefig(f"best_results_plots/{df.iloc[best_idx]['prediction']}_{metric_name}.png")
 
 
 # BINARY #
