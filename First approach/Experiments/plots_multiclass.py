@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 import json
 import os
@@ -7,8 +8,8 @@ from matplotlib.patches import Patch
 
 FOLDER_PATHS = ['multiclass/results-all-hyperparameters-balanced(only-action)/',
                 'multiclass/results-all-hyperparameters-balanced(end-to-end)/']
-METRIC = 'precision_macro'
-TITLE = 'Precision - macro'
+METRIC = 'f1_weighted'
+#TITLE = 'F1 macro'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
@@ -24,7 +25,7 @@ def paper_experiments(dataframe):
     df['prediction'] = df['prediction'].replace(predictions)
     df['spread'] = df['spread'].str[-2:]
     df['experiment_type'] = df['experiment_type'].str.replace('-', ' ').str.capitalize()
-    df = df.sort_values(by=['spread', 'prediction'])
+    df = df.sort_values(by=['spread', 'prediction', 'experiment_type'], ascending=[False, True, True])
     return df
 
 
@@ -82,6 +83,8 @@ legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i]
 plt.legend(handles=legend_patches, borderaxespad=0, fontsize=10, mode='expand',
            ncol=len(models_names), loc='lower center', bbox_to_anchor=(-1, -0.2, 2, 1))
 #plt.tight_layout()
-plt.suptitle(TITLE, size=16)
-plt.subplots_adjust(top=0.9, bottom=0.1)
+#plt.suptitle(TITLE, size=16)
+#plt.subplots_adjust(top=0.9, bottom=0.1)
+plt.subplots_adjust(bottom=0.1)
+plt.yticks(np.arange(0, 1.1, 0.1))
 plt.show()
