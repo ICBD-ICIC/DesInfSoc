@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 import json
 import os
@@ -10,8 +11,8 @@ FOLDER_PATHS_BALANCED = ['binary/results-all-hyperparameters-balanced(only-actio
 FOLDER_PATHS_IMBALANCED = ['binary/results-all-hyperparameters-imbalanced(only-action)/',
                            'binary/results-all-hyperparameters-imbalanced(end-to-end)/']
 FOLDER_PATHS = FOLDER_PATHS_IMBALANCED
-METRIC = 'f1'
-TITLE = 'F1 score'
+METRIC = 'accuracy'
+#TITLE = 'F1 score'
 
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
@@ -28,7 +29,7 @@ def paper_experiments(dataframe):
     df['spread'] = df['spread'].str[-2:]
     df = df[df['spread'].isin(['20', '60'])]
     df['experiment_type'] = df['experiment_type'].str.replace('-', ' ').str.capitalize()
-    df = df.sort_values(by=['experiment_type', 'spread', 'prediction'])
+    df = df.sort_values(by=['spread', 'prediction', 'experiment_type'], ascending=[False, True, True])
     return df
 
 
@@ -86,6 +87,7 @@ legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i]
 plt.legend(handles=legend_patches, borderaxespad=0, fontsize=10, mode='expand',
            ncol=len(models_names), loc='lower center', bbox_to_anchor=(-1, -0.2, 2, 1))
 # plt.tight_layout()
-plt.suptitle(TITLE, size=16)
-plt.subplots_adjust(top=0.9, bottom=0.1)
+#plt.suptitle(TITLE, size=16)
+plt.subplots_adjust(bottom=0.1)
+plt.yticks(np.arange(0, 1.1, 0.1))
 plt.show()
