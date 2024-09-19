@@ -6,3 +6,10 @@ dataset/
 Experiments/binary/dataset
 Experiments/multiclass/dataset
 /First approach/DatasetProcessing/metrics/config.json
+/climate_change/influencers.xlsx
+/climate_change/profiles.xlsx
+/climate_change/replies.xlsx
+/climate_change/data3.csv
+/climate_change/data1.csv
+/climate_change/data2.csv
+/climate_change/all.csv
