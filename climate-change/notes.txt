@@ -1,0 +1,1 @@
+Total users with at least 10 tweets: 2303
