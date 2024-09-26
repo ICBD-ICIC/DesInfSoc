@@ -1,15 +1,15 @@
-DatasetProcessing/dataset/
-DatasetProcessing/dataset/outputs/
+india-elections/DatasetProcessing/dataset/
+india-elections/DatasetProcessing/dataset/outputs/
 /.idea/
-DatasetProcessing/metrics/config.json
+india-elections/DatasetProcessing/metrics/config.json
 dataset/
-Experiments/binary/dataset
-Experiments/multiclass/dataset
-/First approach/DatasetProcessing/metrics/config.json
-/climate_change/influencers.xlsx
-/climate_change/profiles.xlsx
-/climate_change/replies.xlsx
-/climate_change/data3.csv
-/climate_change/data1.csv
-/climate_change/data2.csv
-/climate_change/all.csv
+india-elections/Experiments/binary/dataset
+india-elections/Experiments/multiclass/dataset
+/india-elections/First approach/DatasetProcessing/metrics/config.json
+/climate-change/dataset/influencers.xlsx
+/climate-change/dataset/profiles.xlsx
+/climate-change/dataset/replies.xlsx
+/climate-change/dataset/data3.csv
+/climate-change/dataset/data1.csv
+/climate-change/dataset/data2.csv
+/climate-change/dataset/all.csv
