@@ -4,20 +4,24 @@
 import pandas as pd
 
 USERS_LIST = '../dataset/users_min_10.csv'
-PROFILES = '../dataset/profiles.xlsx'
-REPLIES = '../dataset/replies.xlsx'
+PROFILES = '../dataset/profiles.csv'
+REPLIES = '../dataset/replies.csv'
 OUTPUT_FILE = '../dataset/users_min_10_all_tweets.csv'
 
-profiles = pd.read_excel(PROFILES)['username', 'text']
-# replies = pd.read_excel(REPLIES)
-#
-# # # drop all RTs
-# # df = df[df["tweet_content"].str.startswith("RT @") == False]
-#
-# # get all messages by user id
-# df = df.groupby(['creator_id'])['tweet_content'].apply(lambda x: '. '.join(x)).reset_index()
-#
-# # save as csv
-# df.to_csv(USERS_CONCATENATED_TWEETS_FILE, index=False)
+usernames = pd.read_csv(USERS_LIST)
+usernames = usernames[['user']].set_index('user')
 
-print(profiles)
+profiles = pd.read_csv(PROFILES)
+profiles = profiles[['username', 'text']]
+replies = pd.read_csv(REPLIES)
+replies = replies[['username', 'text']]
+
+all_tweets = pd.concat([profiles, replies], ignore_index=True, sort=False).set_index('username')
+
+all_tweets_per_user = all_tweets.groupby(['username'])['text'].apply(lambda x: '. '.join(x))
+
+all_tweets_per_user_filtered = usernames.join(all_tweets_per_user)
+
+all_tweets_per_user_filtered.to_csv(OUTPUT_FILE)
+
+print(all_tweets_per_user_filtered)
