@@ -13,3 +13,5 @@ india-elections/Experiments/multiclass/dataset
 /climate-change/dataset/data1.csv
 /climate-change/dataset/data2.csv
 /climate-change/dataset/all.csv
+/climate-change/metrics/config.json
+/climate-change/outputs/
