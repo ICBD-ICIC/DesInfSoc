@@ -12,7 +12,7 @@ DATASETS = ['../dataset/replies.xlsx',
 for dataset in DATASETS:
     df = pd.read_excel(dataset)
     try:
-        df = df[['id','created_at','text','conversation_id','username']]
+        df = df[['id','created_at','text','conversation_id','username', 'referenced_tweets']]
     except KeyError:
         df = df[['id', 'created_at', 'text', 'username']]
     df['text'] = df['text'].apply(lambda text: ftfy.fix_text(text))
