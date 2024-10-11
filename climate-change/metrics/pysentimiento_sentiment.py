@@ -3,14 +3,12 @@
 import pandas as pd
 import time
 from pysentimiento import create_analyzer
-import transformers
 
 CONTEXT_TWEETS_FILE = '../dataset/context_tweets.csv'
 SENTIMENTS_OUTPUT_FILE = '../outputs/sentiment_{0}.csv'.format(time.time())
 
 all_tweets = pd.read_csv(CONTEXT_TWEETS_FILE)
 
-transformers.logging.set_verbosity(transformers.logging.ERROR)
 analyzer = create_analyzer(task="sentiment", lang="en")
 
 all_tweets_sentiments = []
