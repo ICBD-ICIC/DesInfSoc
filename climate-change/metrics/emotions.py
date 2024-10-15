@@ -1,26 +1,40 @@
-# Uses distilroberta to get emotions for all tweets in the context. No preprocessing is done
+# Uses roberta to get emotions for all tweets in the context. No preprocessing is done
 
 import pandas as pd
 import time
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 
 CONTEXT_TWEETS_FILE = '../dataset/context_tweets.csv'
 EMOTIONS_OUTPUT_FILE = '../outputs/emotion_{0}.csv'.format(time.time())
+ERRORS = '../outputs/emotion_too_long_{}.csv'.format(time.time())
+
+EMOTIONS = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
 
 all_tweets = pd.read_csv(CONTEXT_TWEETS_FILE)
-
-tokenizer = AutoTokenizer.from_pretrained("j-hartmann/emotion-english-distilroberta-base")
-model = AutoModelForSequenceClassification.from_pretrained("j-hartmann/emotion-english-distilroberta-base")
-classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, return_all_scores=True)
-
 all_tweets_emotions = []
+errors = []
+
+model_name = "j-hartmann/emotion-english-roberta-large"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 for index, row in all_tweets.iterrows():
-    tweet_emotions = classifier(row['text'])
-    tweet_emotions = {emotion['label']: emotion['score'] for emotion in tweet_emotions[0]}
-    tweet_emotions['id'] = row['id']
+    try:
+        inputs = tokenizer(row['text'], return_tensors="pt", padding=True)
+        with torch.no_grad():
+            outputs = model(**inputs)
+            logits = outputs.logits
+        probabilities = torch.softmax(logits, dim=-1).numpy()
+        tweet_emotions = predicted_emotions = {EMOTIONS[i]: prob for i, prob in enumerate(probabilities[0])}
+        tweet_emotions['id'] = row['id']
 
-    all_tweets_emotions.append(tweet_emotions)
+        all_tweets_emotions.append(tweet_emotions)
+    except Exception as e:
+        errors.append({'id': row['id'], 'text': row['text']})
 
 emotions_df = pd.DataFrame(all_tweets_emotions)
 emotions_df.to_csv(EMOTIONS_OUTPUT_FILE, index=False)
+
+errors_df = pd.DataFrame(errors)
+errors_df.to_csv(ERRORS, index=False)
