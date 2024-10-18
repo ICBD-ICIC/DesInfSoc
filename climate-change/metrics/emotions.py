@@ -5,7 +5,8 @@ import time
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
-CONTEXT_TWEETS_FILE = '../dataset/context_tweets.csv'
+#CONTEXT_TWEETS_FILE = '../dataset/context_tweets.csv'
+CONTEXT_TWEETS_FILE = '../outputs/tweets/emotion_too_long_original.csv'
 EMOTIONS_OUTPUT_FILE = '../outputs/emotion_{0}.csv'.format(time.time())
 ERRORS = '../outputs/emotion_too_long_{}.csv'.format(time.time())
 
@@ -21,7 +22,8 @@ model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 for index, row in all_tweets.iterrows():
     try:
-        inputs = tokenizer(row['text'], return_tensors="pt", padding=True)
+        #inputs = tokenizer(row['text'], return_tensors="pt", padding=True)
+        inputs = tokenizer(row['text'], return_tensors="pt", padding=True, truncation = True)
         with torch.no_grad():
             outputs = model(**inputs)
             logits = outputs.logits
