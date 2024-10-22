@@ -1,3 +1,5 @@
+# Joins dataframes that are in multiple files, into a single one
+
 import os
 import pandas as pd
 

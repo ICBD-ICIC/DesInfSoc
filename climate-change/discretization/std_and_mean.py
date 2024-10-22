@@ -1,10 +1,14 @@
+# Calculates standard deviation and mean for each feature inside the specified experiment_type folder
+
 import pandas as pd
 import os
 import numpy as np
 import json
 
-FOLDER_PATH = '../outputs/tweets/pattern_matching'
-OUTPUT_FILE = 'std_and_mean_pattern_matching.json'
+experiment_type = 'pattern_matching'
+
+FOLDER_PATH = '../outputs/tweets/{}'.format(experiment_type)
+OUTPUT_FILE = 'std_and_mean_{}.json'.format(experiment_type)
 
 file_list = os.listdir(FOLDER_PATH)
 

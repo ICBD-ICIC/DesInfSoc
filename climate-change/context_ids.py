@@ -1,3 +1,5 @@
+# For each user, gets the tweets ids of the conversation before its reply
+
 import pandas as pd
 pd.set_option("max_colwidth", 500)
 

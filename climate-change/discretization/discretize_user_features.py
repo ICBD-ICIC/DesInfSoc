@@ -1,3 +1,6 @@
+# Discretizes the tweets features
+
+
 import pandas as pd
 
 COMMUNICATION_STYLE = pd.read_csv('../outputs/user/communication_style.csv')

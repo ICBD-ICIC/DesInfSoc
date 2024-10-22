@@ -1,7 +1,15 @@
+# Normalizes and discretizes the tweets features depending on the experiment_type
+
 from scipy.stats import norm
 import json
+import os
 
-with open('std_and_mean_pattern_matching.json', 'r') as file:
+experiment_type = 'pattern_matching'
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+std_and_mean = os.path.join(current_dir, 'std_and_mean_{}.json'.format(experiment_type))
+
+with open(std_and_mean, 'r') as file:
     STDS_MEANS = json.load(file)
 
 EMOTIONS_CATEGORIES = ['neutral', 'anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise']
@@ -43,31 +51,37 @@ def discretize_comparison(x, y):
 def discretize_abusive(tweets):
     abusive_amount_interval = discretize_column_values(tweets, 'abusive_words_n', 'abusive')
     abusive_ratio_interval = discretize_column_values(tweets, 'abusive_words_ratio', 'abusive')
-    return abusive_amount_interval, abusive_ratio_interval
+    return {'abusive_amount_interval': abusive_amount_interval,
+            'abusive_ratio_interval': abusive_ratio_interval}
 
 
 def discretize_polarization(tweets):
     polarization_amount_interval = discretize_column_values(tweets, 'polar_words_n', 'polar')
     polarization_ratio_interval = discretize_column_values(tweets, 'polar_words_ratio', 'polar')
-    return polarization_amount_interval, polarization_ratio_interval
+    return {'polarization_amount_interval': polarization_amount_interval,
+            'polarization_ratio_interval': polarization_ratio_interval}
 
 
 def discretize_mfd(tweets):
-    mfd_virtue_amount = discretize_column_values(tweets, 'virtue_n', 'mdf')
-    mfd_virtue_ratio = discretize_column_values(tweets, 'virtue_ratio', 'mdf')
-    mfd_vice_amount = discretize_column_values(tweets, 'vice_n', 'mdf')
-    mfd_vice_ratio = discretize_column_values(tweets, 'vice_ratio', 'mdf')
-    return mfd_virtue_amount, mfd_virtue_ratio, mfd_vice_amount, mfd_vice_ratio
+    mfd_virtue_amount = discretize_column_values(tweets, 'virtue_n', 'mfd')
+    mfd_virtue_ratio = discretize_column_values(tweets, 'virtue_ratio', 'mfd')
+    mfd_vice_amount = discretize_column_values(tweets, 'vice_n', 'mfd')
+    mfd_vice_ratio = discretize_column_values(tweets, 'vice_ratio', 'mfd')
+    return {'mfd_virtue_amount': mfd_virtue_amount,
+            'mfd_virtue_ratio': mfd_virtue_ratio,
+            'mfd_vice_amount': mfd_vice_amount,
+            'mfd_vice_ratio': mfd_vice_ratio}
 
 
 # 0: virtue = vice
 # 1: virtue > vice
 # 2: virtue < vice
 def prediction_mfd(tweets):
-    mfd = discretize_mfd(tweets)  # mfd_virtue_amount, mfd_virtue_ratio, mfd_vice_amount, mfd_vice_ratio
-    mfd_ratio = discretize_comparison(mfd[1], mfd[3])
-    mfd_amount = discretize_comparison(mfd[0], mfd[2])
-    return mfd_amount, mfd_ratio
+    mfd = discretize_mfd(tweets)
+    mfd_ratio = discretize_comparison(mfd['mfd_virtue_ratio'], mfd['mfd_vice_ratio'])
+    mfd_amount = discretize_comparison(mfd['mfd_virtue_amount'], mfd['mfd_vice_amount'])
+    return {'mfd_amount': mfd_amount,
+            'mfd_ratio': mfd_ratio}
 
 
 def discretize_valence(tweets):
@@ -75,17 +89,21 @@ def discretize_valence(tweets):
     valence_positive_ratio = discretize_column_values(tweets, 'positive_words_ratio','valence')
     valence_negative_amount = discretize_column_values(tweets, 'negative_words_n','valence')
     valence_negative_ratio = discretize_column_values(tweets, 'negative_words_ratio','valence')
-    return valence_positive_amount, valence_positive_ratio, valence_negative_amount, valence_negative_ratio
+    return {'valence_positive_amount': valence_positive_amount,
+            'valence_positive_ratio': valence_positive_ratio,
+            'valence_negative_amount': valence_negative_amount,
+            'valence_negative_ratio': valence_negative_ratio}
 
 
 # 0: positive = negative
 # 1: positive > negative
 # 2: positive < negative
 def prediction_valence(tweets):
-    valence = discretize_valence(tweets)  # valence_positive_amount, valence_positive_ratio, valence_negative_amount, valence_negative_ratio
-    valence_ratio = discretize_comparison(valence[1], valence[3])
-    valence_amount = discretize_comparison(valence[0], valence[2])
-    return valence_amount, valence_ratio
+    valence = discretize_valence(tweets)
+    valence_ratio = discretize_comparison(valence['valence_positive_ratio'], valence['valence_negative_ratio'])
+    valence_amount = discretize_comparison(valence['valence_positive_amount'], valence['valence_negative_amount'])
+    return {'valence_amount': valence_amount,
+            'valence_ratio': valence_ratio}
 
 
 # Default is 0
@@ -99,12 +117,12 @@ def predominant_category(tweets, categories):
 
 def predominant_emotion(tweets):
     predominant_emotion = predominant_category(tweets, EMOTIONS_CATEGORIES)
-    return (predominant_emotion,)
+    return {'predominant_emotion': predominant_emotion}
 
 
 def predominant_sentiment(tweets):
     predominant_sentiment = predominant_category(tweets, SENTIMENTS_CATEGORIES)
-    return (predominant_sentiment,)
+    return {'predominant_sentiment': predominant_sentiment}
 
 
 def discretize_categories(tweets, all_categories):
@@ -120,7 +138,7 @@ def discretize_categories(tweets, all_categories):
             categories_amounts[category] = categories_percentage[category]
         else:
             categories_amounts[category] = 0
-    return tuple(categories_amounts[key] for key in all_categories)
+    return categories_amounts
 
 
 def discretize_emotions(tweets):
