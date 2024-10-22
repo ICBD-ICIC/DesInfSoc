@@ -5,7 +5,7 @@ CONTEXT_TWEETS = 'dataset/context_tweets_pattern_matching.csv'
 USERS = 'dataset/users_min_10.csv'
 REPLIES = 'dataset/replies.csv'
 INFLUENCERS = 'dataset/influencers.csv'
-OUTPUT_FILE = 'outputs/input_and_ground_truth.csv'
+OUTPUT_FILE = 'dataset/input_and_ground_truth.csv'
 
 usernames = pd.read_csv(USERS)['user']
 replies = pd.read_csv(REPLIES)
