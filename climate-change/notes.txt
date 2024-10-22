@@ -1,1 +1,3 @@
 Total users with at least 10 tweets: 2303
+Total tweets for context: 212521
+Total rows in context: 52467

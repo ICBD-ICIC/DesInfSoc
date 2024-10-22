@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 #CONTEXT_TWEETS_FILE = '../dataset/context_tweets.csv'
-CONTEXT_TWEETS_FILE = '../outputs/tweets/emotion_too_long_original.csv'
+CONTEXT_TWEETS_FILE = '../dataset/emotion_too_long_original.csv'
 EMOTIONS_OUTPUT_FILE = '../outputs/emotion_{0}.csv'.format(time.time())
 ERRORS = '../outputs/emotion_too_long_{}.csv'.format(time.time())
 
