@@ -9,7 +9,7 @@ start = time.time()
 X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
 param_grid = {
-    'kernel': ['linear', 'rbf'],
+    'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
     'gamma': ['scale', 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 }
 
