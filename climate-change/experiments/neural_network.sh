@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=itrust-neural_network
 #SBATCH --mem-per-cpu=4G
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=5
 #SBATCH --array=0-5
-#SBATCH --time=00-01:00:00
+#SBATCH --time=00-12:00:00
 #SBATCH --output=outputs/neural_network-%A-%a.out
 #SBATCH --error=errors/neural_network-%A-%a.err
 

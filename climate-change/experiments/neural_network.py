@@ -10,7 +10,8 @@ X_train, X_test, y_train, y_test = base_model.get_train_test_split()
 
 param_grid = {
      'hidden_layer_sizes': [(10,), (15,), (20,), (30,), (20, 20), (25, 25), (30, 30), (35, 35)],
-     'batch_size': [1, 10, 50, 100, 200]
+     'batch_size': [1, 10, 50, 100, 200],
+     'max_iter': [500]
 }
 
 model = MLPClassifier()

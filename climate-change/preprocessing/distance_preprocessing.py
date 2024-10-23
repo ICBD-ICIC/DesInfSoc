@@ -1,34 +1,44 @@
+# Use this file to clean text to then calculate distance of word embeddings
+import string
+from string import punctuation
+
+import pandas as pd
+import time
 from nltk.tokenize import TweetTokenizer
+import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import wordnet
-from nltk import pos_tag
+import re
+
+CONTEXT_TWEETS_FILE = '../dataset/context_tweets.csv'
+OUTPUT_FILE = '../outputs/context_tweets_distance_{0}.csv'.format(time.time())
+
+df = pd.read_csv(CONTEXT_TWEETS_FILE)
 
 tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
 
 stop_words = set(stopwords.words("english"))
 
-lemmatizer = WordNetLemmatizer()
+# Tokenize
+df['clean_text'] = df['text'].apply(lambda x: tokenizer.tokenize(x))
+# Remove stop words
+df['clean_text'] = df['clean_text'].apply(lambda tokens: [word for word in tokens if word not in stop_words])
+# Remove punctuation tokens
+punctuation_tokens = string.punctuation+'–'+'…'+'…'+'...'+'—'
+df['clean_text'] = df['clean_text'].apply(lambda tokens: [word for word in tokens if word not in punctuation_tokens])
+# Remove urls
+df['clean_text'] = df['clean_text'].apply(lambda tokens: [token for token in tokens if not token.startswith("https:")])
+df = df.drop(columns=['text'])
+df.to_csv(OUTPUT_FILE, index=False)
 
-wordnet_map = {"N": wordnet.NOUN, "V": wordnet.VERB, "J": wordnet.ADJ, "R": wordnet.ADV}
 
-# tweets = union de tweets de influencers y de replies
 
-for tweet in tweets:
-    tokens = tokenizer.tokenize(tweet['text'])
 
-    tokens_no_stopwords = [word for word in tokens if word not in stop_words]
 
-    # todo: remove punctuation
-    # todo: check code
-    pos_tags = pos_tag(tweet['text'])
-    lemmatized_words = []
-    for word, tag in pos_tags:
-        # Map the POS tag to WordNet POS tag
-        pos = wordnet_map.get(tag[0].upper(), wordnet.NOUN)
-        # Lemmatize the word with the appropriate POS tag
-        lemmatized_word = lemmatizer.lemmatize(word, pos=pos)
-        # Add the lemmatized word to the list
-        lemmatized_words.append(lemmatized_word)
 
-    return lemmatized_words
+
+
+
+
+
+
