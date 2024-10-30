@@ -33,16 +33,16 @@ def polar_words(text, dictionary):
     return " ".join(polar_or_similar)
 
 # Local paths
-# MODEL_PATH = '../../../crawl-300d-2M-subword.bin'
-# CONTEXT_CLEANED_TWEETS_FILE = '../dataset/context_tweets_distance.csv'
-# POLARIZATION_WORDS_DICTIONARY = 'dictionaries/lang_online_polarization_dict.csv'
-# OUTPUT_FILE = '../outputs/polar_{0}.csv'.format(time.time())
+MODEL_PATH = '../../../crawl-300d-2M-subword.bin'
+CONTEXT_CLEANED_TWEETS_FILE = '../dataset/context_tweets_distance.csv'
+POLARIZATION_WORDS_DICTIONARY = 'dictionaries/lang_online_polarization_dict.csv'
+OUTPUT_FILE = '../outputs/polar_{0}.csv'.format(time.time())
 
 # Paths in the kluster
-MODEL_PATH = 'crawl-300d-2M-subword.bin'
-CONTEXT_CLEANED_TWEETS_FILE = 'dataset/context_tweets_distance.csv'
-POLARIZATION_WORDS_DICTIONARY = 'dictionaries/lang_online_polarization_dict.csv'
-OUTPUT_FILE = 'outputs/polar_{0}.csv'.format(time.time())
+# MODEL_PATH = 'crawl-300d-2M-subword.bin'
+# CONTEXT_CLEANED_TWEETS_FILE = 'dataset/context_tweets_distance.csv'
+# POLARIZATION_WORDS_DICTIONARY = 'dictionaries/lang_online_polarization_dict.csv'
+# OUTPUT_FILE = 'outputs/polar_{0}.csv'.format(time.time())
 
 ft = fasttext.load_model(MODEL_PATH)
 
@@ -55,7 +55,7 @@ polarization_embeddings = [ft.get_word_vector(word).reshape(1, -1) for word in p
 
 all_tweets['polar_words'] = all_tweets['clean_text'].apply(lambda text: polar_words(text, polarization_embeddings))
 all_tweets['polar_words_n'] = all_tweets['polar_words'].str.split().map(len)
-all_tweets['polar_words_ratio'] = all_tweets['polar_words_n'].astype('int') / len(all_tweets['clean_text'])
+all_tweets['polar_words_ratio'] = all_tweets['polar_words_n'].astype('int') / all_tweets['clean_text'].map(len)
 
 num_cols = all_tweets.describe().columns
 all_tweets[num_cols] = all_tweets[num_cols].fillna(0).round(4)
