@@ -8,7 +8,7 @@ import numpy as np
 FOLDER_PATHS_BALANCED = ['../experiments/experiments/']
 
 FOLDER_PATHS = FOLDER_PATHS_BALANCED
-METRIC = 'f1'
+METRIC = 'accuracy'
 
 file_list = []
 for folder_path in FOLDER_PATHS:
@@ -40,8 +40,10 @@ sns.set_palette("pastel")
 p = sns.catplot(data=dataframe, x="prediction", y="metric_value", hue="model", kind="bar", edgecolor='black')
 
 plt.xticks(rotation=90)
-plt.subplots_adjust(bottom=0.5)
+plt.subplots_adjust(bottom=0.5, top=0.9)
 p.set(xlabel=None, ylabel=None)
 plt.yticks(np.arange(0, 1.1, 0.1))
+
+plt.title(METRIC)
 
 plt.show()
