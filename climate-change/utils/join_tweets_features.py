@@ -1,8 +1,8 @@
 import pandas as pd
 
-experiment_type = 'pattern_matching'
+experiment_type = 'distance'
 
-OUTPUT_FILE = '../outputs/tweets_features.csv'
+OUTPUT_FILE = '../outputs/tweets_features_{}.csv'.format(experiment_type)
 
 ABUSIVE = pd.read_csv('../outputs/tweets/{}/abusive.csv'.format(experiment_type))
 MFD = pd.read_csv('../outputs/tweets/{}/mfd.csv'.format(experiment_type))

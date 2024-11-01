@@ -30,5 +30,7 @@ with open(base_model.get_output_filepath('random_forest'), 'w') as file:
      file.write(str(best_model.get_params()))
      file.write(str(random_search.best_params_))
 
+base_model.save_model(best_model, 'random_forest')
+
 print('FINISHED after {} seconds'.format(time.time()-start))
 

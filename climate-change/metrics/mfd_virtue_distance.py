@@ -33,20 +33,20 @@ def mfd_virtue_words(text, dictionary):
     return " ".join(mfd_virtue_or_similar)
 
 # Local paths
-# MODEL_PATH = '../../../crawl-300d-2M-subword.bin'
-# CONTEXT_CLEANED_TWEETS_FILE = '../dataset/context_tweets_distance.csv'
-# MORAL_FOUNDATION_DICTIONARY = 'dictionaries/mfd.tsv'
-# OUTPUT_FILE = '../outputs/mfd_virtue_{0}.csv'.format(time.time())
+MODEL_PATH = '../../../crawl-300d-2M-subword.bin'
+CONTEXT_CLEANED_TWEETS_FILE = '../dataset/context_tweets_distance.csv'
+MORAL_FOUNDATION_DICTIONARY = 'dictionaries/mfd.tsv'
+OUTPUT_FILE = '../outputs/mfd_virtue_{0}.csv'.format(time.time())
 
 # Paths in the kluster
-MODEL_PATH = 'crawl-300d-2M-subword.bin'
-CONTEXT_CLEANED_TWEETS_FILE = 'dataset/context_tweets_distance.csv'
-MORAL_FOUNDATION_DICTIONARY = 'dictionaries/mfd.tsv'
-OUTPUT_FILE = 'outputs/mfd_virtue_{0}.csv'.format(time.time())
+# MODEL_PATH = 'crawl-300d-2M-subword.bin'
+# CONTEXT_CLEANED_TWEETS_FILE = 'dataset/context_tweets_distance.csv'
+# MORAL_FOUNDATION_DICTIONARY = 'dictionaries/mfd.tsv'
+# OUTPUT_FILE = 'outputs/mfd_virtue_{0}.csv'.format(time.time())
 
 ft = fasttext.load_model(MODEL_PATH)
 
-all_tweets = pd.read_csv(CONTEXT_CLEANED_TWEETS_FILE, converters={"clean_text": literal_eval})
+all_tweets = pd.read_csv(CONTEXT_CLEANED_TWEETS_FILE, converters={"clean_text": literal_eval})[0:10]
 
 start = time.time()
 mfd_dictionary = pd.read_csv(MORAL_FOUNDATION_DICTIONARY, sep='\t')

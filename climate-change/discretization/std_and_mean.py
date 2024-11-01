@@ -5,7 +5,7 @@ import os
 import numpy as np
 import json
 
-experiment_type = 'pattern_matching'
+experiment_type = 'distance'
 
 FOLDER_PATH = '../outputs/tweets/{}'.format(experiment_type)
 OUTPUT_FILE = 'std_and_mean_{}.json'.format(experiment_type)
