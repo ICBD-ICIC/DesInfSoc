@@ -5,7 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 
-FOLDER_PATHS_BALANCED = ['../experiments/experiments/']
+FOLDER_PATHS_BALANCED = ['../experiments/experiments-distance/']
 
 FOLDER_PATHS = FOLDER_PATHS_BALANCED
 METRIC = 'accuracy'

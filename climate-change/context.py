@@ -15,7 +15,7 @@ TWEETS_IDS = pd.read_csv('dataset/for_context/input_and_ground_truth.csv',
                          converters={"previous_posts_ids": literal_eval})
 TWEETS_FEATURES = pd.read_csv('dataset/for_context/tweets_features_{}.csv'.format(experiment_type))
 
-OUTPUT_FILE = 'outputs/context_{}_{}.csv'.format(experiment_type, time.time())
+OUTPUT_FILE = 'outputs/CONTEXT_{}_{}.csv'.format(experiment_type, time.time())
 
 discretizer = TweetsMetricsDiscretizer(experiment_type)
 
@@ -46,8 +46,8 @@ for index, row in TWEETS_IDS.iterrows():
     user_features = USERS[USERS['username'] == row['username']]
     prediction_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'] == row['user_reply_id']]
     ground_truth_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'].isin(row['previous_posts_ids'])]
-    context_rows.append({ 'big_five': int(user_features['big_five']),
-                          'psychographics': int(user_features['psychographics']),
+    context_rows.append({ 'big_five': int(user_features['big_five'].iloc[0]),
+                          'psychographics': int(user_features['psychographics'].iloc[0]),
                           **context(ground_truth_tweets),
                           **ground_truth(prediction_tweets)})
 context_df = pd.DataFrame(context_rows)
