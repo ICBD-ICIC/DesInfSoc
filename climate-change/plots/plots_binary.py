@@ -5,10 +5,12 @@ import os
 import pandas as pd
 import numpy as np
 
-FOLDER_PATHS_BALANCED = ['../experiments/experiments-distance/']
+EXPERIMENT_TYPE = 'pattern_matching'
+
+FOLDER_PATHS_BALANCED = ['../experiments/experiments-{}/'.format(EXPERIMENT_TYPE)]
 
 FOLDER_PATHS = FOLDER_PATHS_BALANCED
-METRIC = 'accuracy'
+METRIC = 'f1'
 
 file_list = []
 for folder_path in FOLDER_PATHS:
@@ -46,4 +48,22 @@ plt.yticks(np.arange(0, 1.1, 0.1))
 
 plt.title(METRIC)
 
-plt.show()
+print('Differences with random guessing')
+print('Experiment type: {}'.format(EXPERIMENT_TYPE))
+print('Metric: {}'.format(METRIC))
+for prediction in dataframe['prediction'].unique():
+    best_result = dataframe[
+        (dataframe['model'] != 'random_guessing') &
+        (dataframe['prediction'] == prediction) &
+        (dataframe['metric_name'] == METRIC)
+        ]['metric_value'].max()
+
+    random_result = dataframe[
+        (dataframe['prediction'] == prediction) &
+        (dataframe['model'] == 'random_guessing') &
+        (dataframe['metric_name'] == METRIC)
+        ]['metric_value'].iloc[0]
+    improvement = ((best_result - random_result) / random_result) * 100
+    print('{}: {}%'.format(prediction, improvement.round(2)))
+
+#plt.show()
