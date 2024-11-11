@@ -45,10 +45,10 @@ context_rows = []
 for index, row in TWEETS_IDS.iterrows():
     user_features = USERS[USERS['username'] == row['username']]
     prediction_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'] == row['user_reply_id']]
-    ground_truth_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'].isin(row['previous_posts_ids'])]
+    context_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'].isin(row['previous_posts_ids'])]
     context_rows.append({ 'big_five': int(user_features['big_five'].iloc[0]),
                           'psychographics': int(user_features['psychographics'].iloc[0]),
-                          **context(ground_truth_tweets),
+                          **context(context_tweets),
                           **ground_truth(prediction_tweets)})
 context_df = pd.DataFrame(context_rows)
 context_df.to_csv(OUTPUT_FILE, index=False)

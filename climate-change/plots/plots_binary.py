@@ -5,12 +5,12 @@ import os
 import pandas as pd
 import numpy as np
 
-EXPERIMENT_TYPE = 'pattern_matching'
+EXPERIMENT_TYPE = 'distance'
 
 FOLDER_PATHS_BALANCED = ['../experiments/experiments-{}/'.format(EXPERIMENT_TYPE)]
 
 FOLDER_PATHS = FOLDER_PATHS_BALANCED
-METRIC = 'f1'
+METRIC = 'recall'
 
 file_list = []
 for folder_path in FOLDER_PATHS:
