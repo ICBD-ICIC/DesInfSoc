@@ -1,3 +1,4 @@
+import pickle
 import sys
 import pandas as pd
 import time
@@ -90,3 +91,10 @@ def get_metrics(y_test, y_pred):
     for beta_option in BETA_OPTIONS:
         metrics['fbeta_{}'.format(beta_option)] = fbeta_score(y_test, y_pred, beta=beta_option)
     return metrics
+
+def save_model(model, model_name):
+    model_filename = '../lit/models/{}_{}.pkl'.format(model_name, prediction)
+    test_dataset_filename = '../lit/dataset/{}_{}.csv'.format(dataset_name, prediction)
+    with open(model_filename, 'wb') as file:
+        pickle.dump(model, file)
+    _, X_test, _, y_test = get_train_test_split()
