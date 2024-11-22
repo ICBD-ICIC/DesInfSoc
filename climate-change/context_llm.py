@@ -8,7 +8,7 @@ from discretization.discretize_tweets_metrics import *
 pd.set_option("max_colwidth", 200)
 pd.set_option("display.max_columns", None)
 
-experiment_type = 'distance'
+experiment_type = 'pattern_matching'
 
 USERS_FEATURES = pd.read_csv('dataset/for_llm_context/users_features_llm.csv')
 TWEETS_IDS = pd.read_csv('dataset/for_llm_context/input_and_ground_truth_llm.csv',
