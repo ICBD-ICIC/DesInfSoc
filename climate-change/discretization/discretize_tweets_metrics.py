@@ -4,7 +4,6 @@ from scipy.stats import norm
 import json
 import os
 
-
 # INTERVAL MAP
 # [0,0.25), [0.25,0.5), [0.5,0.75), [0.75,1]
 # 0         1             2           3
@@ -23,7 +22,7 @@ def discretize_comparison(x, y):
         return 2
 
 def discretize_categories(tweets, all_categories):
-    predominant_categories = tweets[all_categories].idxmax(axis=1)
+    predominant_categories = tweets[all_categories].astype(float).idxmax(axis=1)
     categories_total = predominant_categories.value_counts()
     total_tweets_amount = len(tweets.index)
     categories_percentage = categories_total.apply(
@@ -47,15 +46,16 @@ def predominant_category(tweets, categories):
 
 class TweetsMetricsDiscretizer:
 
+    emotions_categories = ['neutral', 'anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise']
+    #                       0           1         2          3       4         5           6
+    sentiment_categories = ['sentiment-neutral', 'sentiment-positive', 'sentiment-negative']
+    #                               0                        1                   2
+
     def __init__(self, experiment_type):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         std_and_mean = os.path.join(current_dir, 'std_and_mean_{}.json'.format(experiment_type))
         with open(std_and_mean, 'r') as file:
             self.std_means = json.load(file)
-        self.emotions_categories = ['neutral', 'anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise']
-        #                       0           1         2          3       4         5           6
-        self.sentiment_categories = ['sentiment-neutral', 'sentiment-positive', 'sentiment-negative']
-        #                               0                        1                   2
 
     def discretize_column_values(self, tweets, column_name, feature_name):
         if len(tweets.index) == 0:
