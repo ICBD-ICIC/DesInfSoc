@@ -1,6 +1,7 @@
-from ast import literal_eval
-import random
+# experiment1
 
+import csv
+from ast import literal_eval
 import torch
 from transformers import pipeline
 import pandas as pd
@@ -11,17 +12,16 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 discretization_path = os.path.join(current_dir, '..', '..', 'discretization')
 sys.path.append(discretization_path)
 
-from discretize_tweets_metrics import *  # Adjust based on the actual module content
+from discretize_tweets_metrics import *
 
-# MAIN_USER = '@UserA' # TODO: map real usernames to synthetic ones
+OUTPUT_FILE = '../../outputs/experiment#1-abusive.csv'
+
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
-CONTEXT_AMOUNT = 10
 
 experiment_type = 'pattern_matching'
-#test_data = pd.read_csv("../../dataset/CONTEXT_LLM_{}-binary_test.csv".format(experiment_type))
-test_data = pd.read_csv("../../outputs/CONTEXT_LLM_pattern_matching_PRUEBAS.csv",
-                        converters={"user": literal_eval, "tweets": literal_eval})
+test_data = pd.read_csv("../../outputs/CONTEXT_LLM_pattern_matching_experiment#1.csv",
+                        converters={"user": literal_eval, "tweets_sample": literal_eval, "context_features": literal_eval})
 
 model_id = "meta-llama/Llama-3.2-1B-Instruct"
 pipe = pipeline(
@@ -33,99 +33,85 @@ pipe = pipeline(
 
 discretizer = TweetsMetricsDiscretizer(experiment_type)
 
-def context(tweets):
-    return { **discretizer.discretize_abusive(tweets),
-             **discretizer.discretize_polarization(tweets),
-             **discretizer.predominant_emotion(tweets),
-             **discretizer.discretize_emotions(tweets),
-             **discretizer.discretize_mfd(tweets),
-             **discretizer.discretize_valence(tweets),
-             **discretizer.predominant_sentiment(tweets),
-             **discretizer.discretize_sentiments(tweets)}
-
-
 def personality_label(score):
     return HIGH_LABEL if score > 0.5 else LOW_LABEL
 
 
-# Function to format the dictionary into a descriptive text
 def format_personality_data(data, current_username):
-    formatted_personality = f"@{current_username} has the following personality profile:\n\n"
+    formatted_personality = f"@{current_username} has the following personality profile:\n"
 
     for key, value in data.items():
         if 'Value' in value.keys():
             score = float(value.get('Value'))
             label = personality_label(score)
-            formatted_personality += f"{key}: ({label} - Score: {score:.2f}):\n"
-
-            value = value.get('Traits')
+            formatted_personality += f"  - {key}: {label} (Score: {score:.2f})\n"
+        elif key == "Personality traits":
+            formatted_personality += f"  - {key}: {'Rational' if value['Rational'] > 0.5 else 'Emotional'}\n"
         else:
-            formatted_personality += f"{key}:\n"
-        for value, score in value.items():
-            score = float(score)
-            formatted_personality += f"  - {value}: {score:.2f}\n"
-        formatted_personality += "\n"
-
+            formatted_communication_style = ', '.join(key for key, value in value.items() if value > 0.5)
+            formatted_personality += f"  - {key}: {formatted_communication_style}\n"
     return formatted_personality
 
 
 def display_feature_label(feature):
     display_label = feature.split('ratio')[0]
     display_label = display_label.replace('_', ' ')
-    display_label = display_label.replace('mfd', 'moral')
-    return display_label
+    display_label = display_label.replace('mfd', 'moral').strip()
+    return display_label.capitalize()
 
 def format_tweet_features(features_averages):
-    formatted_features = ""
+    formatted_features = "Conversation metrics:\n"
     for key, value in features_averages.items():
         if "ratio" in key:
-            formatted_features += (f"The amount of {display_feature_label(key)}words in the conversation "
-                                   f"is {(HIGH_LABEL if value > 1 else LOW_LABEL).lower()}. ")
+            amount_value = features_averages[key.replace('ratio', 'amount')]
+            feature_value = (HIGH_LABEL if ((value > 1) or (amount_value > 1)) else LOW_LABEL)
+            formatted_features += f"  - {display_feature_label(key)} words: {feature_value}\n"
         elif key == "predominant_sentiment":
-            formatted_features += (f"The predominant sentiment in the conversation "
-                                   f"is {discretizer.sentiment_categories[value].replace('sentiment-', '')}. ")
+            formatted_features += (f"  - Predominant sentiment: "
+                                   f"{discretizer.sentiment_categories[value].replace('sentiment-', '').capitalize()}\n")
         elif key == "predominant_emotion":
-            formatted_features += (f"The predominant emotion in the conversation "
-                                   f"is {discretizer.emotions_categories[value]}. ")
+            formatted_features += (f"  - Predominant emotion: "
+                                   f"{discretizer.emotions_categories[value].capitalize()}\n")
     return formatted_features
 
-# Function to format the dictionary into a descriptive text
-def format_tweets(tweets, current_username):
-    formatted_tweets = f"@{current_username} has engaged in a Twitter conversation. Some tweets from that conversation are:\n\n"
+def format_tweets(tweets, current_username, context_features):
+    formatted_tweets = f"@{current_username} has engaged in a Twitter conversation. Some tweets from that conversation are:\n"
 
-    tweets_selection_ids = random.sample(tweets.keys(), CONTEXT_AMOUNT) # TODO: mantaint the first one?
-    tweets_selection = {key: tweets[key] for key in tweets_selection_ids if key in tweets}
+    for tweet in tweets:
+        formatted_tweets += f"  - {tweet}\n"
 
-    for key, value in tweets_selection.items():
-        formatted_tweets += f"  - {value['text']}\n"
-
-    tweet_features = pd.DataFrame(tweets_selection).T
-    features_averages = context(tweet_features)
-    formatted_tweets += f"\n{format_tweet_features(features_averages)}\n"
+    formatted_tweets += f"\n{format_tweet_features(context_features)}\n"
 
     return formatted_tweets
 
+with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
+    csv_writer = csv.writer(output_file)
+    csv_writer.writerow(['row_index', 'tweets_amount', 'prompt', 'result', 'ground_truth'])
 
-personality_data = test_data.iloc[0]['user']
-current_user = test_data.iloc[0]['current_username']
-tweets = test_data.iloc[0]['tweets']
+    for index, row in test_data.iterrows():
+        personality_data = row['user']
+        current_user = row['current_username']
+        context_features = row['context_features']
+        ground_truth = (HIGH_LABEL if ((row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1)) else LOW_LABEL)
 
-prompt = (f"{format_personality_data(personality_data, current_user)}"
-          f"\n"
-          f"{format_tweets(tweets, current_user)}"
-          f"\n\n"
-          f"Do you think @{current_user}'s response to the conversation "
-          f"will have a {HIGH_LABEL.lower()} or {LOW_LABEL.lower()} amount of abusive words?")
+        for amount in range(2, 11, 2):
+            tweets = row['tweets_sample'][0:amount]
 
-print(prompt)
+            prompt = (f"In one word, predict if @{current_user}'s response to the conversation "
+                      f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words."
+                      f"{format_personality_data(personality_data, current_user)}"
+                      f"\n"
+                      f"{format_tweets(tweets, current_user, context_features)}"
+                      f"\n"
+                      f"In one word, predict if @{current_user}'s response to the conversation "
+                      f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.")
 
-outputs = pipe(
-    prompt,
-    max_new_tokens = 10,
-    do_sample=False,
-    return_full_text = False
-)
-print(outputs[0]["generated_text"])
+            outputs = pipe(
+                prompt,
+                max_new_tokens=50,
+                do_sample=False,
+                return_full_text=False
+            )
+            response = outputs[0]["generated_text"]
 
-print(test_data.iloc[0]['abusive_ratio_interval_gt'])
-print(test_data.iloc[0]['abusive_amount_interval_gt'])
+            csv_writer.writerow([index, amount, prompt, response, ground_truth])

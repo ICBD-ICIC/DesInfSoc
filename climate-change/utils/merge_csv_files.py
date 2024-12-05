@@ -3,8 +3,8 @@
 import os
 import pandas as pd
 
-FOLDER_PATH = '../outputs/user/personality_traits'
-RESULT_FILE = '../outputs/user/personality_traits.csv'
+FOLDER_PATH = '../outputs/experiment'
+RESULT_FILE = '../outputs/experiment/experiment#1-abusive.csv'
 
 file_list = os.listdir(FOLDER_PATH)
 

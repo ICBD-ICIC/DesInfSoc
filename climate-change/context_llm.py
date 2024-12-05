@@ -10,14 +10,18 @@ import pandas as pd
 import time
 from discretization.discretize_tweets_metrics import *
 
+MAX_ROWS = 5
+MAX_TWEETS = 10
+
 pd.set_option("max_colwidth", 200)
 pd.set_option("display.max_columns", None)
 
 experiment_type = 'pattern_matching'
 
 USERS_FEATURES = pd.read_csv('dataset/for_llm_context/users_features_llm.csv')
-TWEETS_IDS = pd.read_csv('dataset/for_llm_context/input_and_ground_truth_llm.csv',
-                         converters={"previous_posts_ids": literal_eval})[0:10]
+tweets_ids_all = pd.read_csv('dataset/for_llm_context/input_and_ground_truth_llm.csv',
+                         converters={"previous_posts_ids": literal_eval})
+TWEETS_IDS = tweets_ids_all.sample(MAX_ROWS) # For testing purposes, remove later
 CONTEXT_TWEETS = pd.read_csv('dataset/for_llm_context/context_tweets_llm.csv')
 tweets_features = pd.read_csv('dataset/for_context/tweets_features_{}.csv'.format(experiment_type))
 TWEETS_FEATURES = tweets_features.loc[:, ~tweets_features.columns.str.contains('^Unnamed')] #Drop previous index
@@ -91,16 +95,15 @@ def format_user_features(user):
     }
     return formatted_user_features
 
-def format_context_tweets(tweets, features):
-    ordered_tweets = tweets.sort_values(by='created_at', ascending=True)
-    formatted_tweets = {}
-    for index, row in ordered_tweets.iterrows():
-        formatted_tweets[row['id']] = {
-            "text": row['text'],
-            "username": row['username'],
-            **(features[features['id'] == row['id']].to_dict('records')[0])
-        }
-    return formatted_tweets
+def context(tweets):
+    return { **discretizer.discretize_abusive(tweets),
+             **discretizer.discretize_polarization(tweets),
+             **discretizer.predominant_emotion(tweets),
+             **discretizer.discretize_emotions(tweets),
+             **discretizer.discretize_mfd(tweets),
+             **discretizer.discretize_valence(tweets),
+             **discretizer.predominant_sentiment(tweets),
+             **discretizer.discretize_sentiments(tweets)}
 
 #Dessigned for multiple tweets but in our case we have only 1
 def ground_truth(tweets):
@@ -119,12 +122,14 @@ for index, row in TWEETS_IDS.iterrows():
     prediction_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'] == row['user_reply_id']]
 
     context_tweets = CONTEXT_TWEETS[CONTEXT_TWEETS['id'].isin(row['previous_posts_ids'])]
+    context_sample = context_tweets.sample(n=min(10, len(context_tweets)))
     tweets_features = TWEETS_FEATURES[TWEETS_FEATURES['id'].isin(row['previous_posts_ids'])]
 
     context_rows.append({ 'conversation_id': row['conversation_id'],
                           'current_username': row['username'],
                           'user': format_user_features(user_features),
-                          'tweets': format_context_tweets(context_tweets, tweets_features),
+                          'tweets_sample': list(context_sample.sort_values(by='created_at', ascending=True)['text']),
+                          'context_features': context(tweets_features),
                           **ground_truth(prediction_tweets)})
 context_df = pd.DataFrame(context_rows)
 context_df.to_csv(OUTPUT_FILE, index=False)
