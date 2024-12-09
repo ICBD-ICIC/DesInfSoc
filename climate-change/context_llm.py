@@ -10,7 +10,7 @@ import pandas as pd
 import time
 from discretization.discretize_tweets_metrics import *
 
-MAX_ROWS = 5
+MAX_ROWS = 50
 MAX_TWEETS = 10
 
 pd.set_option("max_colwidth", 200)

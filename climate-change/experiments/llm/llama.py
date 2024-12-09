@@ -14,14 +14,34 @@ sys.path.append(discretization_path)
 
 from discretize_tweets_metrics import *
 
-OUTPUT_FILE = '../../outputs/experiment#2-abusive.csv'
+#TODO: refactor to set linguistic feature once
+
+OUTPUT_FILE = '../../outputs/experiment#3-abusive.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
 
+MAX_TWEETS = 5
+MAX_ROWS = 5
+
 experiment_type = 'pattern_matching'
-test_data = pd.read_csv("../../outputs/CONTEXT_LLM_pattern_matching_experiment#2.csv",
-                        converters={"user": literal_eval, "tweets_sample": literal_eval, "context_features": literal_eval})
+test_data = pd.read_csv("../../outputs/experiments/experiments#3/CONTEXT_LLM_pattern_matching_experiment#3_test.csv",
+                        converters={"user": literal_eval,
+                                    "tweets_sample": literal_eval,
+                                    "context_features": literal_eval})[0:MAX_ROWS]
+examples_data = pd.read_csv("../../outputs/experiments/experiments#3/CONTEXT_LLM_pattern_matching_experiment#3_train.csv",
+                        converters={"user": literal_eval,
+                                    "tweets_sample": literal_eval,
+                                    "context_features": literal_eval})
+
+positive_examples = examples_data[
+    (examples_data['abusive_amount_interval_gt'] > 1) |
+    (examples_data['abusive_ratio_interval_gt'] > 1)
+]
+negative_examples = examples_data[
+    (examples_data['abusive_amount_interval_gt'] < 2) &
+    (examples_data['abusive_ratio_interval_gt'] < 2)
+]
 
 model_id = "meta-llama/Llama-3.2-1B-Instruct"
 pipe = pipeline(
@@ -78,40 +98,51 @@ def format_tweets(tweets, current_username, context_features):
     formatted_tweets = f"@{current_username} has engaged in a Twitter conversation. The last tweets from that conversation are:\n"
 
     for tweet in tweets:
-        formatted_tweets += f"  - {tweet}\n"
+        formatted_tweets += f"  - \"{tweet}\"\n"
 
-    formatted_tweets += f"\n{format_tweet_features(context_features)}\n"
+    formatted_tweets += f"\n{format_tweet_features(context_features)}"
 
     return formatted_tweets
 
+def get_prompt(row, is_example):
+    personality_data = row['user']
+    current_user = row['current_username']
+    context_features = row['context_features']
+    ground_truth = (HIGH_LABEL if ((row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1)) else LOW_LABEL)
+    tweets = row['tweets_sample'][0:MAX_TWEETS]
+    prompt = (f"{format_personality_data(personality_data, current_user)}"
+              f"\n"
+              f"{format_tweets(tweets, current_user, context_features)}"
+              f"\n"
+              f"In one word, predict if @{current_user}'s response to the conversation "
+              f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.\n"
+              f"Response: {ground_truth if is_example else ''}")
+    return prompt
+
 with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
     csv_writer = csv.writer(output_file)
-    csv_writer.writerow(['row_index', 'tweets_amount', 'prompt', 'result', 'ground_truth'])
+    csv_writer.writerow(['row_index', 'prompt', 'result', 'ground_truth'])
 
     for index, row in test_data.iterrows():
-        personality_data = row['user']
-        current_user = row['current_username']
-        context_features = row['context_features']
-        ground_truth = (HIGH_LABEL if ((row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1)) else LOW_LABEL)
+        positive_example = positive_examples.sample(1).iloc[0]
+        negative_example = negative_examples.sample(1).iloc[0]
 
-        for amount in range(2, 11, 2):
-            tweets = row['tweets_sample'][(10-amount):10]
+        prompt = (f"Examples:\n"
+                  f"---\n"
+                  f"{get_prompt(positive_example, True)}\n"
+                  f"---\n"
+                  f"{get_prompt(negative_example, True)}\n"
+                  f"---\n"
+                  f"{get_prompt(row, False)}\n")
 
-            prompt = (f"In one word, predict if @{current_user}'s response to the conversation "
-                      f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words."
-                      f"{format_personality_data(personality_data, current_user)}"
-                      f"\n"
-                      f"{format_tweets(tweets, current_user, context_features)}"
-                      f"\n"
-                      f"In one word, predict if @{current_user}'s response to the conversation "
-                      f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.")
-
-            outputs = pipe(
-                prompt,
-                max_new_tokens=50,
-                do_sample=False,
-                return_full_text=False
-            )
-            response = outputs[0]["generated_text"]
-
-            csv_writer.writerow([index, amount, prompt, response, ground_truth])
+        outputs = pipe(
+            prompt,
+            max_new_tokens=50,
+            do_sample=False,
+            return_full_text=False
+        )
+        response = outputs[0]["generated_text"]
+        ground_truth = (HIGH_LABEL if (
+                        (row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1))
+                        else LOW_LABEL)
+        csv_writer.writerow([index, prompt, response, ground_truth])
