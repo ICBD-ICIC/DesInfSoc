@@ -1,4 +1,4 @@
-# experiment1
+# experiment2
 
 import csv
 from ast import literal_eval
@@ -14,13 +14,13 @@ sys.path.append(discretization_path)
 
 from discretize_tweets_metrics import *
 
-OUTPUT_FILE = '../../outputs/experiment#1-abusive.csv'
+OUTPUT_FILE = '../../outputs/experiment#2-abusive.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
 
 experiment_type = 'pattern_matching'
-test_data = pd.read_csv("../../outputs/CONTEXT_LLM_pattern_matching_experiment#1.csv",
+test_data = pd.read_csv("../../outputs/CONTEXT_LLM_pattern_matching_experiment#2.csv",
                         converters={"user": literal_eval, "tweets_sample": literal_eval, "context_features": literal_eval})
 
 model_id = "meta-llama/Llama-3.2-1B-Instruct"
@@ -75,7 +75,7 @@ def format_tweet_features(features_averages):
     return formatted_features
 
 def format_tweets(tweets, current_username, context_features):
-    formatted_tweets = f"@{current_username} has engaged in a Twitter conversation. Some tweets from that conversation are:\n"
+    formatted_tweets = f"@{current_username} has engaged in a Twitter conversation. The last tweets from that conversation are:\n"
 
     for tweet in tweets:
         formatted_tweets += f"  - {tweet}\n"
@@ -95,7 +95,7 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
         ground_truth = (HIGH_LABEL if ((row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1)) else LOW_LABEL)
 
         for amount in range(2, 11, 2):
-            tweets = row['tweets_sample'][0:amount]
+            tweets = row['tweets_sample'][(10-amount):10]
 
             prompt = (f"In one word, predict if @{current_user}'s response to the conversation "
                       f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words."

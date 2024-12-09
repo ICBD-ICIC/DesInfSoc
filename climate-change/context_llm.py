@@ -122,7 +122,8 @@ for index, row in TWEETS_IDS.iterrows():
     prediction_tweets = TWEETS_FEATURES[TWEETS_FEATURES['id'] == row['user_reply_id']]
 
     context_tweets = CONTEXT_TWEETS[CONTEXT_TWEETS['id'].isin(row['previous_posts_ids'])]
-    context_sample = context_tweets.sample(n=min(10, len(context_tweets)))
+    context_tweets = context_tweets.sort_values(by='created_at', ascending=True)
+    context_sample = context_tweets[0:min(10, len(context_tweets))]
     tweets_features = TWEETS_FEATURES[TWEETS_FEATURES['id'].isin(row['previous_posts_ids'])]
 
     context_rows.append({ 'conversation_id': row['conversation_id'],
