@@ -16,7 +16,7 @@ from discretize_tweets_metrics import *
 
 #TODO: refactor to set linguistic feature once
 
-OUTPUT_FILE = '../../outputs/experiment#3-abusive.csv'
+OUTPUT_FILE = '../../outputs/experiment#3.1-abusive.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
@@ -116,7 +116,8 @@ def get_prompt(row, is_example):
               f"\n"
               f"In one word, predict if @{current_user}'s response to the conversation "
               f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.\n"
-              f"Response: {ground_truth if is_example else ''}")
+              f"SYSTEM ANSWER: I predict that the amount of abusive words in @{current_user}'s response "
+              f"will be {ground_truth + '.' if is_example else ''}")
     return prompt
 
 with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
