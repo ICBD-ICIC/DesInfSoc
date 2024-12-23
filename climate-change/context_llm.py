@@ -1,8 +1,5 @@
 # Creates the dataset as needed for the LLM classifiers
 
-# TODO: decide how many tweets we want to use per context and save only that amount and the calculated average
-# I can also save the formated user features
-
 from ast import literal_eval
 
 import numpy as np
@@ -10,7 +7,6 @@ import pandas as pd
 import time
 from discretization.discretize_tweets_metrics import *
 
-MAX_ROWS = 50
 MAX_TWEETS = 10
 
 pd.set_option("max_colwidth", 200)
@@ -19,9 +15,8 @@ pd.set_option("display.max_columns", None)
 experiment_type = 'pattern_matching'
 
 USERS_FEATURES = pd.read_csv('dataset/for_llm_context/users_features_llm.csv')
-tweets_ids_all = pd.read_csv('dataset/for_llm_context/input_and_ground_truth_llm.csv',
+TWEETS_IDS = pd.read_csv('dataset/for_llm_context/input_and_ground_truth_llm.csv',
                          converters={"previous_posts_ids": literal_eval})
-TWEETS_IDS = tweets_ids_all.sample(MAX_ROWS) # For testing purposes, remove later
 CONTEXT_TWEETS = pd.read_csv('dataset/for_llm_context/context_tweets_llm.csv')
 tweets_features = pd.read_csv('dataset/for_context/tweets_features_{}.csv'.format(experiment_type))
 TWEETS_FEATURES = tweets_features.loc[:, ~tweets_features.columns.str.contains('^Unnamed')] #Drop previous index
@@ -123,13 +118,13 @@ for index, row in TWEETS_IDS.iterrows():
 
     context_tweets = CONTEXT_TWEETS[CONTEXT_TWEETS['id'].isin(row['previous_posts_ids'])]
     context_tweets = context_tweets.sort_values(by='created_at', ascending=True)
-    context_sample = context_tweets[0:min(10, len(context_tweets))]
+    context_last_tweets = context_tweets[0:min(MAX_TWEETS, len(context_tweets))]
     tweets_features = TWEETS_FEATURES[TWEETS_FEATURES['id'].isin(row['previous_posts_ids'])]
 
     context_rows.append({ 'conversation_id': row['conversation_id'],
                           'current_username': row['username'],
                           'user': format_user_features(user_features),
-                          'tweets_sample': list(context_sample.sort_values(by='created_at', ascending=True)['text']),
+                          'tweets_sample': list(context_last_tweets['text']),
                           'context_features': context(tweets_features),
                           **ground_truth(prediction_tweets)})
 context_df = pd.DataFrame(context_rows)

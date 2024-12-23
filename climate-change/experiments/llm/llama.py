@@ -1,5 +1,3 @@
-# experiment2
-
 import csv
 from ast import literal_eval
 import torch
@@ -14,34 +12,38 @@ sys.path.append(discretization_path)
 
 from discretize_tweets_metrics import *
 
-#TODO: refactor to set linguistic feature once
+EXPERIMENT_NUMBER = 4
+EXPERIMENT_TYPE = 'pattern_matching'
+FEATURE_TYPE = 'interval' #categorical, interval, interval_comparison
+FEATURE = 'abusive'
 
-OUTPUT_FILE = '../../outputs/experiment#3.1-abusive.csv'
+OUTPUT_FILE = f'../../outputs/experiment#{EXPERIMENT_NUMBER}-{FEATURE}.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
 
 MAX_TWEETS = 5
-MAX_ROWS = 5
 
-experiment_type = 'pattern_matching'
-test_data = pd.read_csv("../../outputs/experiments/experiments#3/CONTEXT_LLM_pattern_matching_experiment#3_test.csv",
+DATASET_PATH = '../../outputs/experiments/experiment#{}/CONTEXT_LLM_pattern_matching_experiment#{}.csv'.format(EXPERIMENT_NUMBER, EXPERIMENT_NUMBER)
+
+test_data = pd.read_csv(DATASET_PATH.replace('.csv', '_test.csv'),
                         converters={"user": literal_eval,
                                     "tweets_sample": literal_eval,
-                                    "context_features": literal_eval})[0:MAX_ROWS]
-examples_data = pd.read_csv("../../outputs/experiments/experiments#3/CONTEXT_LLM_pattern_matching_experiment#3_train.csv",
+                                    "context_features": literal_eval})[0:5]
+examples_data = pd.read_csv(DATASET_PATH.replace('.csv', '_train.csv'),
                         converters={"user": literal_eval,
                                     "tweets_sample": literal_eval,
                                     "context_features": literal_eval})
 
-positive_examples = examples_data[
-    (examples_data['abusive_amount_interval_gt'] > 1) |
-    (examples_data['abusive_ratio_interval_gt'] > 1)
-]
-negative_examples = examples_data[
-    (examples_data['abusive_amount_interval_gt'] < 2) &
-    (examples_data['abusive_ratio_interval_gt'] < 2)
-]
+if FEATURE_TYPE == 'interval':
+    positive_examples = examples_data[
+        (examples_data[f'{FEATURE}_amount_interval_gt'] > 1) |
+        (examples_data[f'{FEATURE}_ratio_interval_gt'] > 1)
+    ]
+    negative_examples = examples_data[
+        (examples_data[f'{FEATURE}_amount_interval_gt'] < 2) &
+        (examples_data[f'{FEATURE}_ratio_interval_gt'] < 2)
+    ]
 
 model_id = "meta-llama/Llama-3.2-1B-Instruct"
 pipe = pipeline(
@@ -51,11 +53,10 @@ pipe = pipeline(
     device_map="auto",
 )
 
-discretizer = TweetsMetricsDiscretizer(experiment_type)
+discretizer = TweetsMetricsDiscretizer(EXPERIMENT_TYPE)
 
 def personality_label(score):
     return HIGH_LABEL if score > 0.5 else LOW_LABEL
-
 
 def format_personality_data(data, current_username):
     formatted_personality = f"@{current_username} has the following personality profile:\n"
@@ -71,7 +72,6 @@ def format_personality_data(data, current_username):
             formatted_communication_style = ', '.join(key for key, value in value.items() if value > 0.5)
             formatted_personality += f"  - {key}: {formatted_communication_style}\n"
     return formatted_personality
-
 
 def display_feature_label(feature):
     display_label = feature.split('ratio')[0]
@@ -97,7 +97,7 @@ def format_tweet_features(features_averages):
 def format_tweets(tweets, current_username, context_features):
     formatted_tweets = f"@{current_username} has engaged in a Twitter conversation. The last tweets from that conversation are:\n"
 
-    for tweet in tweets:
+    for tweet in tweets[0:min(MAX_TWEETS, len(tweets))]:
         formatted_tweets += f"  - \"{tweet}\"\n"
 
     formatted_tweets += f"\n{format_tweet_features(context_features)}"
@@ -109,15 +109,14 @@ def get_prompt(row, is_example):
     current_user = row['current_username']
     context_features = row['context_features']
     ground_truth = (HIGH_LABEL if ((row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1)) else LOW_LABEL)
-    tweets = row['tweets_sample'][0:MAX_TWEETS]
-    prompt = (f"{format_personality_data(personality_data, current_user)}"
-              f"\n"
-              f"{format_tweets(tweets, current_user, context_features)}"
-              f"\n"
-              f"In one word, predict if @{current_user}'s response to the conversation "
-              f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.\n"
-              f"SYSTEM ANSWER: I predict that the amount of abusive words in @{current_user}'s response "
-              f"will be {ground_truth + '.' if is_example else ''}")
+    tweets = row['tweets_sample']
+    prompt = (f"<|start_header_id|>system<|end_header_id|>{format_personality_data(personality_data, current_user)}\n"
+              f"{format_tweets(tweets, current_user, context_features)}<|eot_id|>"
+              f"<|start_header_id|>user<|end_header_id|>In one word, predict if @{current_user}'s response to the conversation "
+              f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.<|eot_id|>"
+              f"<|start_header_id|>assistant<|end_header_id|>")
+    if is_example:
+        prompt += f"{ground_truth + '.'}"
     return prompt
 
 with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
@@ -128,21 +127,20 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
         positive_example = positive_examples.sample(1).iloc[0]
         negative_example = negative_examples.sample(1).iloc[0]
 
-        prompt = (f"Examples:\n"
-                  f"---\n"
+        prompt = (f"<|begin_of_text|>"
                   f"{get_prompt(positive_example, True)}\n"
-                  f"---\n"
                   f"{get_prompt(negative_example, True)}\n"
-                  f"---\n"
                   f"{get_prompt(row, False)}\n")
+
+        print(prompt)
 
         outputs = pipe(
             prompt,
-            max_new_tokens=50,
+            max_new_tokens=10,
             do_sample=False,
             return_full_text=False
         )
-        response = outputs[0]["generated_text"]
+        response = outputs[0]["generated_text"] #should end with <|eot_id|>
         ground_truth = (HIGH_LABEL if (
                         (row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1))
                         else LOW_LABEL)
