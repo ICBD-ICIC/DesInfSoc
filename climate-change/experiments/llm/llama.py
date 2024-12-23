@@ -12,10 +12,12 @@ sys.path.append(discretization_path)
 
 from discretize_tweets_metrics import *
 
-EXPERIMENT_NUMBER = 4
+EXPERIMENT_NUMBER = 5
 EXPERIMENT_TYPE = 'pattern_matching'
 FEATURE_TYPE = 'interval' #categorical, interval, interval_comparison
 FEATURE = 'abusive'
+
+WITH_EXAMPLES = False
 
 OUTPUT_FILE = f'../../outputs/experiment#{EXPERIMENT_NUMBER}-{FEATURE}.csv'
 
@@ -104,19 +106,29 @@ def format_tweets(tweets, current_username, context_features):
 
     return formatted_tweets
 
-def get_prompt(row, is_example):
-    personality_data = row['user']
-    current_user = row['current_username']
-    context_features = row['context_features']
-    ground_truth = (HIGH_LABEL if ((row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1)) else LOW_LABEL)
-    tweets = row['tweets_sample']
+def ground_truth(data):
+    if FEATURE_TYPE == 'interval':
+        if (data[f'{FEATURE}_amount_interval_gt'] > 1) or (data[f'{FEATURE}_ratio_interval_gt'] > 1):
+            return HIGH_LABEL
+        else:
+            return LOW_LABEL
+
+def prediction_task(current_user):
+    if FEATURE_TYPE == 'interval':
+        return (f"In one word, predict if @{current_user}'s response to the conversation will have a {HIGH_LABEL} or "
+                f"{LOW_LABEL} amount of {FEATURE} words.")
+
+def get_single_prompt(data, is_example):
+    personality_data = data['user']
+    current_user = data['current_username']
+    context_features = data['context_features']
+    tweets = data['tweets_sample']
     prompt = (f"<|start_header_id|>system<|end_header_id|>{format_personality_data(personality_data, current_user)}\n"
               f"{format_tweets(tweets, current_user, context_features)}<|eot_id|>"
-              f"<|start_header_id|>user<|end_header_id|>In one word, predict if @{current_user}'s response to the conversation "
-              f"will have a {HIGH_LABEL} or {LOW_LABEL} amount of abusive words.<|eot_id|>"
+              f"<|start_header_id|>user<|end_header_id|>{prediction_task(current_user)}<|eot_id|>"
               f"<|start_header_id|>assistant<|end_header_id|>")
     if is_example:
-        prompt += f"{ground_truth + '.'}"
+        prompt += f"{ground_truth(data) + '.'}"
     return prompt
 
 with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
@@ -127,21 +139,21 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
         positive_example = positive_examples.sample(1).iloc[0]
         negative_example = negative_examples.sample(1).iloc[0]
 
-        prompt = (f"<|begin_of_text|>"
-                  f"{get_prompt(positive_example, True)}\n"
-                  f"{get_prompt(negative_example, True)}\n"
-                  f"{get_prompt(row, False)}\n")
+        main_prompt = "<|begin_of_text|>"
 
-        print(prompt)
+        if WITH_EXAMPLES:
+            main_prompt += (f"{get_single_prompt(positive_example, True)}\n"
+                       f"{get_single_prompt(negative_example, True)}\n")
+
+        main_prompt += f"{get_single_prompt(row, False)}\n"
+
+        print(main_prompt)
 
         outputs = pipe(
-            prompt,
+            main_prompt,
             max_new_tokens=10,
             do_sample=False,
             return_full_text=False
         )
-        response = outputs[0]["generated_text"] #should end with <|eot_id|>
-        ground_truth = (HIGH_LABEL if (
-                        (row['abusive_amount_interval_gt'] > 1) or (row['abusive_ratio_interval_gt'] > 1))
-                        else LOW_LABEL)
-        csv_writer.writerow([index, prompt, response, ground_truth])
+        response = outputs[0]["generated_text"]
+        csv_writer.writerow([index, main_prompt, response, ground_truth(row)])
