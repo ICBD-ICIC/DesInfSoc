@@ -1,4 +1,6 @@
 import csv
+import math
+import time
 from ast import literal_eval
 import torch
 from transformers import pipeline
@@ -12,21 +14,21 @@ sys.path.append(discretization_path)
 
 from discretize_tweets_metrics import *
 
-EXPERIMENT_NUMBER = 5
+EXPERIMENT_NUMBER = 5.1
 EXPERIMENT_TYPE = 'pattern_matching'
 FEATURE_TYPE = 'interval' #categorical, interval, interval_comparison
 FEATURE = 'abusive'
 
 WITH_EXAMPLES = False
 
-OUTPUT_FILE = f'../../outputs/experiment#{EXPERIMENT_NUMBER}-{FEATURE}.csv'
+EXPERIMENT_PATH = f'../../outputs/experiments/experiment#{math.floor(EXPERIMENT_NUMBER)}/'
+DATASET_PATH = f'{EXPERIMENT_PATH}CONTEXT_LLM_pattern_matching_experiment#{math.floor(EXPERIMENT_NUMBER)}.csv'
+OUTPUT_FILE = f'{EXPERIMENT_PATH}/experiment#{EXPERIMENT_NUMBER}-{FEATURE}.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
 
 MAX_TWEETS = 5
-
-DATASET_PATH = '../../outputs/experiments/experiment#{}/CONTEXT_LLM_pattern_matching_experiment#{}.csv'.format(EXPERIMENT_NUMBER, EXPERIMENT_NUMBER)
 
 test_data = pd.read_csv(DATASET_PATH.replace('.csv', '_test.csv'),
                         converters={"user": literal_eval,
@@ -116,7 +118,7 @@ def ground_truth(data):
 def prediction_task(current_user):
     if FEATURE_TYPE == 'interval':
         return (f"In one word, predict if @{current_user}'s response to the conversation will have a {HIGH_LABEL} or "
-                f"{LOW_LABEL} amount of {FEATURE} words.")
+                f"{LOW_LABEL} amount of {FEATURE} words. Your answer should be {HIGH_LABEL} or {LOW_LABEL}.")
 
 def get_single_prompt(data, is_example):
     personality_data = data['user']
@@ -136,6 +138,8 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
     csv_writer.writerow(['row_index', 'prompt', 'result', 'ground_truth'])
 
     for index, row in test_data.iterrows():
+        start = time.time()
+
         positive_example = positive_examples.sample(1).iloc[0]
         negative_example = negative_examples.sample(1).iloc[0]
 
@@ -147,8 +151,6 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
 
         main_prompt += f"{get_single_prompt(row, False)}\n"
 
-        print(main_prompt)
-
         outputs = pipe(
             main_prompt,
             max_new_tokens=10,
@@ -157,3 +159,9 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
         )
         response = outputs[0]["generated_text"]
         csv_writer.writerow([index, main_prompt, response, ground_truth(row)])
+
+        elapsed = time.time() - start
+        hours = int(elapsed // 3600)
+        minutes = int((elapsed % 3600) // 60)
+        seconds = elapsed % 60
+        print(f"Elapsed time: {hours} hours, {minutes} minutes, and {seconds:.2f} seconds")
