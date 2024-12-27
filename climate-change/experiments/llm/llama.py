@@ -16,14 +16,14 @@ from discretize_tweets_metrics import *
 
 EXPERIMENT_NUMBER = 5.1
 EXPERIMENT_TYPE = 'pattern_matching'
-FEATURE_TYPE = 'interval' #categorical, interval, interval_comparison
-FEATURE = 'abusive'
+FEATURE_TYPE = 'categorical' #categorical, interval, interval_comparison
+FEATURE = 'emotion'
 
-WITH_EXAMPLES = False
+WITH_EXAMPLES = True
 
 EXPERIMENT_PATH = f'../../outputs/experiments/experiment#{math.floor(EXPERIMENT_NUMBER)}/'
 DATASET_PATH = f'{EXPERIMENT_PATH}CONTEXT_LLM_pattern_matching_experiment#{math.floor(EXPERIMENT_NUMBER)}.csv'
-OUTPUT_FILE = f'{EXPERIMENT_PATH}/experiment#{EXPERIMENT_NUMBER}-{FEATURE}.csv'
+OUTPUT_FILE = f'{EXPERIMENT_PATH}/experiment#{EXPERIMENT_NUMBER}-{FEATURE}-{"few_shot" if WITH_EXAMPLES else "zero_shot"}.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
@@ -39,16 +39,6 @@ examples_data = pd.read_csv(DATASET_PATH.replace('.csv', '_train.csv'),
                                     "tweets_sample": literal_eval,
                                     "context_features": literal_eval})
 
-if FEATURE_TYPE == 'interval':
-    positive_examples = examples_data[
-        (examples_data[f'{FEATURE}_amount_interval_gt'] > 1) |
-        (examples_data[f'{FEATURE}_ratio_interval_gt'] > 1)
-    ]
-    negative_examples = examples_data[
-        (examples_data[f'{FEATURE}_amount_interval_gt'] < 2) &
-        (examples_data[f'{FEATURE}_ratio_interval_gt'] < 2)
-    ]
-
 model_id = "meta-llama/Llama-3.2-1B-Instruct"
 pipe = pipeline(
     "text-generation",
@@ -58,6 +48,29 @@ pipe = pipeline(
 )
 
 discretizer = TweetsMetricsDiscretizer(EXPERIMENT_TYPE)
+
+def get_examples():
+    if FEATURE_TYPE == 'interval':
+        positive_mask = (examples_data[f'{FEATURE}_amount_interval_gt'] > 1) | \
+                        (examples_data[f'{FEATURE}_ratio_interval_gt'] > 1)
+        negative_mask = (examples_data[f'{FEATURE}_amount_interval_gt'] < 2) & \
+                        (examples_data[f'{FEATURE}_ratio_interval_gt'] < 2)
+
+        positive_example = examples_data[positive_mask].sample(1).iloc[0]
+        negative_example = examples_data[negative_mask].sample(1).iloc[0]
+
+        return [positive_example, negative_example]
+    elif FEATURE_TYPE == 'categorical':
+        if FEATURE == 'sentiment':
+            categories = discretizer.sentiment_categories
+        elif FEATURE == 'emotion':
+            categories = discretizer.emotions_categories
+        categories = range(0, len(categories))
+        feature = f'predominant_{FEATURE}_gt'
+        categories_examples = []
+        for category in categories:
+            categories_examples.append(examples_data[examples_data[feature] == category].sample(1).iloc[0])
+        return categories_examples
 
 def personality_label(score):
     return HIGH_LABEL if score > 0.5 else LOW_LABEL
@@ -114,11 +127,24 @@ def ground_truth(data):
             return HIGH_LABEL
         else:
             return LOW_LABEL
+    if FEATURE_TYPE == 'categorical':
+        if FEATURE == 'sentiment':
+            return discretizer.sentiment_categories[data['predominant_sentiment_gt']].replace('sentiment-', '').capitalize()
+        elif FEATURE == 'emotion':
+            return discretizer.emotions_categories[data['predominant_emotion_gt']].capitalize()
 
 def prediction_task(current_user):
     if FEATURE_TYPE == 'interval':
         return (f"In one word, predict if @{current_user}'s response to the conversation will have a {HIGH_LABEL} or "
                 f"{LOW_LABEL} amount of {FEATURE} words. Your answer should be {HIGH_LABEL} or {LOW_LABEL}.")
+    if FEATURE_TYPE == 'categorical':
+        if FEATURE == 'sentiment':
+            categories = [item.replace('sentiment-', '').capitalize() for item in discretizer.sentiment_categories]
+        elif FEATURE == 'emotion':
+            categories = [item.capitalize() for item in discretizer.emotions_categories]
+        categories = ', '.join(categories[:-1]) + ', or ' + categories[-1]
+        return (f"In one word, predict which {FEATURE} will have @{current_user}'s response to the conversation."
+                f" Your answer should be {categories}.")
 
 def get_single_prompt(data, is_example):
     personality_data = data['user']
@@ -130,7 +156,7 @@ def get_single_prompt(data, is_example):
               f"<|start_header_id|>user<|end_header_id|>{prediction_task(current_user)}<|eot_id|>"
               f"<|start_header_id|>assistant<|end_header_id|>")
     if is_example:
-        prompt += f"{ground_truth(data) + '.'}"
+        prompt += f"{ground_truth(data) + '<|eot_id|>'}"
     return prompt
 
 with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
@@ -140,14 +166,12 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
     for index, row in test_data.iterrows():
         start = time.time()
 
-        positive_example = positive_examples.sample(1).iloc[0]
-        negative_example = negative_examples.sample(1).iloc[0]
-
         main_prompt = "<|begin_of_text|>"
 
         if WITH_EXAMPLES:
-            main_prompt += (f"{get_single_prompt(positive_example, True)}\n"
-                       f"{get_single_prompt(negative_example, True)}\n")
+            examples = get_examples()
+            for example in examples:
+                main_prompt += f"{get_single_prompt(example, True)}\n"
 
         main_prompt += f"{get_single_prompt(row, False)}\n"
 
