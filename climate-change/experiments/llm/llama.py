@@ -16,8 +16,8 @@ from discretize_tweets_metrics import *
 
 EXPERIMENT_NUMBER = 5.1
 EXPERIMENT_TYPE = 'pattern_matching'
-FEATURE_TYPE = 'categorical' #categorical, interval, interval_comparison
-FEATURE = 'emotion'
+FEATURE_TYPE = 'interval_comparison' #categorical, interval, interval_comparison
+FEATURE = 'valence'
 
 WITH_EXAMPLES = True
 
@@ -67,6 +67,13 @@ def get_examples():
             categories = discretizer.emotions_categories
         categories = range(0, len(categories))
         feature = f'predominant_{FEATURE}_gt'
+        categories_examples = []
+        for category in categories:
+            categories_examples.append(examples_data[examples_data[feature] == category].sample(1).iloc[0])
+        return categories_examples
+    elif FEATURE_TYPE == 'interval_comparison':
+        categories = range(0, 3)
+        feature = f'{FEATURE}_amount_gt'
         categories_examples = []
         for category in categories:
             categories_examples.append(examples_data[examples_data[feature] == category].sample(1).iloc[0])
@@ -132,6 +139,20 @@ def ground_truth(data):
             return discretizer.sentiment_categories[data['predominant_sentiment_gt']].replace('sentiment-', '').capitalize()
         elif FEATURE == 'emotion':
             return discretizer.emotions_categories[data['predominant_emotion_gt']].capitalize()
+    if FEATURE_TYPE == 'interval_comparison':
+        if FEATURE == 'mfd':
+            category1 = 'Virtue'
+            category2 = 'Vice'
+        elif FEATURE == 'valence':
+            category1 = 'Positive'
+            category2 = 'Negative'
+        if data[f'{FEATURE}_amount_gt'] == 0:
+            return "Equal"
+        elif data[f'{FEATURE}_amount_gt'] == 1:
+            return category1
+        elif data[f'{FEATURE}_amount_gt'] == 2:
+            return category2
+
 
 def prediction_task(current_user):
     if FEATURE_TYPE == 'interval':
@@ -145,6 +166,18 @@ def prediction_task(current_user):
         categories = ', '.join(categories[:-1]) + ', or ' + categories[-1]
         return (f"In one word, predict which {FEATURE} will have @{current_user}'s response to the conversation."
                 f" Your answer should be {categories}.")
+    if FEATURE_TYPE == 'interval_comparison':
+        if FEATURE == 'mfd':
+            category1 = 'Virtue'
+            category2 = 'Vice'
+            feature = 'moral'
+        elif FEATURE == 'valence':
+            category1 = 'Positive'
+            category2 = 'Negative'
+            feature = 'valence'
+        return (f"In one word, predict if @{current_user}'s response to the conversation will have more {category1}, "
+                f"more {category2}, or Equal amount of {feature} words. Your answer should be {category1}, {category2}, "
+                f"or Equal.")
 
 def get_single_prompt(data, is_example):
     personality_data = data['user']
