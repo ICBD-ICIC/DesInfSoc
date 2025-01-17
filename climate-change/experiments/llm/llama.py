@@ -1,5 +1,4 @@
 import csv
-import math
 import time
 from ast import literal_eval
 import torch
@@ -14,26 +13,24 @@ sys.path.append(discretization_path)
 
 from discretize_tweets_metrics import *
 
-EXPERIMENT_NUMBER = 5.1
-EXPERIMENT_TYPE = 'pattern_matching'
-FEATURE_TYPE = 'interval_comparison' #categorical, interval, interval_comparison
-FEATURE = 'valence'
+start = time.time()
 
-WITH_EXAMPLES = True
+EXPERIMENT_TYPE = sys.argv[1] #pattern_matching, distance
+FEATURE = sys.argv[2] #abusive, sentiment, valence, polarization, emotion, mfd
+WITH_EXAMPLES = sys.argv[3].lower() == 'true'
 
-EXPERIMENT_PATH = f'../../outputs/experiments/experiment#{math.floor(EXPERIMENT_NUMBER)}/'
-DATASET_PATH = f'{EXPERIMENT_PATH}CONTEXT_LLM_pattern_matching_experiment#{math.floor(EXPERIMENT_NUMBER)}.csv'
-OUTPUT_FILE = f'{EXPERIMENT_PATH}/experiment#{EXPERIMENT_NUMBER}-{FEATURE}-{"few_shot" if WITH_EXAMPLES else "zero_shot"}.csv'
+MAX_TWEETS = 5
+
+DATASET_PATH = f'dataset/CONTEXT_LLM_{EXPERIMENT_TYPE}.csv'
+OUTPUT_FILE = f'results/{FEATURE}-{"few_shot" if WITH_EXAMPLES else "zero_shot"}.csv'
 
 HIGH_LABEL = 'High'
 LOW_LABEL = 'Low'
 
-MAX_TWEETS = 5
-
 test_data = pd.read_csv(DATASET_PATH.replace('.csv', '_test.csv'),
                         converters={"user": literal_eval,
                                     "tweets_sample": literal_eval,
-                                    "context_features": literal_eval})[0:5]
+                                    "context_features": literal_eval})
 examples_data = pd.read_csv(DATASET_PATH.replace('.csv', '_train.csv'),
                         converters={"user": literal_eval,
                                     "tweets_sample": literal_eval,
@@ -48,6 +45,16 @@ pipe = pipeline(
 )
 
 discretizer = TweetsMetricsDiscretizer(EXPERIMENT_TYPE)
+
+def get_feature_type(feature):
+    if feature in ['sentiment', 'emotion']:
+        return 'categorical'
+    if feature in ['abusive', 'polarization']:
+        return 'interval'
+    if feature in ['valence', 'mfd']:
+        return 'interval_comparison'
+
+FEATURE_TYPE = get_feature_type(FEATURE)
 
 def get_examples():
     if FEATURE_TYPE == 'interval':
@@ -197,7 +204,6 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
     csv_writer.writerow(['row_index', 'prompt', 'result', 'ground_truth'])
 
     for index, row in test_data.iterrows():
-        start = time.time()
 
         main_prompt = "<|begin_of_text|>"
 
@@ -217,8 +223,8 @@ with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as output_file:
         response = outputs[0]["generated_text"]
         csv_writer.writerow([index, main_prompt, response, ground_truth(row)])
 
-        elapsed = time.time() - start
-        hours = int(elapsed // 3600)
-        minutes = int((elapsed % 3600) // 60)
-        seconds = elapsed % 60
-        print(f"Elapsed time: {hours} hours, {minutes} minutes, and {seconds:.2f} seconds")
+elapsed = time.time() - start
+hours = int(elapsed // 3600)
+minutes = int((elapsed % 3600) // 60)
+seconds = elapsed % 60
+print(f"Elapsed time: {hours} hours, {minutes} minutes, and {seconds:.2f} seconds")
