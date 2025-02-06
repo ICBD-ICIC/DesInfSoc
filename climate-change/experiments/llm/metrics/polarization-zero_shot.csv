@@ -1,0 +1,12 @@
+{
+    "accuracy": 0.6284501061571125,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "roc_auc": 0.5,
+    "precision_recall_auc": 0.6857749469214437,
+    "fbeta_0.5": 0.0,
+    "fbeta_2": 0.0,
+    "fbeta_3": 0.0,
+    "fbeta_4": 0.0
+}
