@@ -10,7 +10,7 @@ EXPERIMENT_TYPE = 'distance'
 FOLDER_PATHS_BALANCED = ['../experiments/experiments-{}/'.format(EXPERIMENT_TYPE)]
 
 FOLDER_PATHS = FOLDER_PATHS_BALANCED
-METRIC = 'recall'
+METRIC = 'precision'
 
 file_list = []
 for folder_path in FOLDER_PATHS:
@@ -30,7 +30,9 @@ for filename in file_list:
     model = filename.split(',')[1]
     prediction = filename.split(',')[2]
     for name, value in metrics.items():
-        model_data = {'metric_name': name, 'metric_value': value, 'model': model, 'prediction': prediction}
+        model_data = {'metric_name': name, 'metric_value': value,
+                      'model': model.replace('_', ' ').title(),
+                      'prediction': prediction.capitalize().replace('Mfd', 'MFD').replace('gt', '').replace('_', ' ')}
         plot_data.append(model_data)
 
 dataframe = pd.DataFrame(plot_data)
@@ -46,24 +48,24 @@ plt.subplots_adjust(bottom=0.5, top=0.9)
 p.set(xlabel=None, ylabel=None)
 plt.yticks(np.arange(0, 1.1, 0.1))
 
-plt.title(METRIC)
+plt.title(f'{METRIC.upper()} - {EXPERIMENT_TYPE.replace("_", "-")}')
 
 print('Differences with random guessing')
 print('Experiment type: {}'.format(EXPERIMENT_TYPE))
 print('Metric: {}'.format(METRIC))
 for prediction in dataframe['prediction'].unique():
     best_result = dataframe[
-        (dataframe['model'] != 'random_guessing') &
+        (dataframe['model'] != 'Random Guessing') &
         (dataframe['prediction'] == prediction) &
         (dataframe['metric_name'] == METRIC)
         ]['metric_value'].max()
 
     random_result = dataframe[
         (dataframe['prediction'] == prediction) &
-        (dataframe['model'] == 'random_guessing') &
+        (dataframe['model'] == 'Random Guessing') &
         (dataframe['metric_name'] == METRIC)
         ]['metric_value'].iloc[0]
     improvement = ((best_result - random_result) / random_result) * 100
     print('{}: {}%'.format(prediction, improvement.round(2)))
 
-#plt.show()
+plt.show()
