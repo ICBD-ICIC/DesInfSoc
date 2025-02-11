@@ -36,46 +36,54 @@ def get_metrics(y_test, y_pred):
 
 def binary_metrics(y_test, y_pred):
     metrics = {'accuracy': accuracy_score(y_test, y_pred),
-               'precision': precision_score(y_test, y_pred),
-               'recall': recall_score(y_test, y_pred),
-               'f1': f1_score(y_test, y_pred),
-               'roc_auc': roc_auc_score(y_test, y_pred),
-               'precision_recall_auc': precision_recall_auc(y_test, y_pred)}
-    for beta_option in BETA_OPTIONS:
-        metrics['fbeta_{}'.format(beta_option)] = fbeta_score(y_test, y_pred, beta=beta_option)
+               'precision': precision_score(y_test, y_pred, pos_label="High"),
+               'recall': recall_score(y_test, y_pred, pos_label="High"),
+               'f1': f1_score(y_test, y_pred, pos_label="High"),
+               # 'roc_auc': roc_auc_score(y_test, y_pred),
+               # 'precision_recall_auc': precision_recall_auc(y_test, y_pred, pos_label="High")
+    }
+    # for beta_option in BETA_OPTIONS:
+    #     metrics['fbeta_{}'.format(beta_option)] = fbeta_score(y_test, y_pred, beta=beta_option)
     return metrics
 
 
-def save_confusion_matrix(y_true, y_pred):
-    disp = ConfusionMatrixDisplay(confusion_matrix(y_true, y_pred))
-    disp.plot()
-    plt.savefig(f'confusion_matrix/{filename.replace('csv','png')}')
+def save_confusion_matrix(y_true, y_pred, labels, color):
+    disp = ConfusionMatrixDisplay(confusion_matrix(y_true, y_pred, labels=labels),
+                                  display_labels=labels)
+    disp.plot(cmap=color)
+    plt.savefig(f'confusion_matrix/{filename}'.replace('csv','png'))
 
 
-LABEL_MAPPING = {'Low': 0,
-                 'High': 1,
-                 'Neutral': 0,
-                 'Anger': 1,
-                 'Disgust': 2,
-                 'Fear': 3,
-                 'Joy': 4,
-                 'Sadness': 5,
-                 'Surprise': 6,
-                 'Equal': 0,
-                 'Virtue': 1,
-                 'Vice': 2,
-                 'Positive': 1,
-                 'Negative': 2}
+def plot_color(filename):
+    if "few" in filename:
+        return plt.cm.Blues
+    else:
+        return plt.cm.Reds
+
+# LABEL_MAPPING = {'Low': 0,
+#                  'High': 1,
+#                  'Neutral': 0,
+#                  'Anger': 1,
+#                  'Disgust': 2,
+#                  'Fear': 3,
+#                  'Joy': 4,
+#                  'Sadness': 5,
+#                  'Surprise': 6,
+#                  'Equal': 0,
+#                  'Virtue': 1,
+#                  'Vice': 2,
+#                  'Positive': 1,
+#                  'Negative': 2}
 RESULTS_FOLDER = "results"
 
 for filename in os.listdir(RESULTS_FOLDER):
     df = pd.read_csv(os.path.join(RESULTS_FOLDER, filename))
     df['result'] = df['result'].str.replace(r'More |\.', '', regex=True)
-    df['ground_truth'] = df['ground_truth'].map(LABEL_MAPPING)
-    df['result'] = df['result'].map(LABEL_MAPPING)
+    # df['ground_truth'] = df['ground_truth'].map(LABEL_MAPPING)
+    # df['result'] = df['result'].map(LABEL_MAPPING)
     metrics = get_metrics(df['ground_truth'], df['result'])
 
     with open(f'metrics/{filename}', 'w') as file:
         file.write(json.dumps(metrics, indent=4))
 
-    save_confusion_matrix(df['ground_truth'], df['result'])
+    save_confusion_matrix(df['ground_truth'], df['result'], df['ground_truth'].unique(), plot_color(filename))
