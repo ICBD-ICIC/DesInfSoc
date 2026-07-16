@@ -16,6 +16,11 @@ DATASET_FOLDER_PATHS = {
 
 METRIC = 'f1'  # <-- cambia esto si la clave en tus JSON se llama distinto (p. ej. 'f1_score')
 
+# Tamaños de fuente globales (sube estos valores para agrandar aún más el texto)
+FONT_SIZE_TITLE = 16
+FONT_SIZE_TICKS = 14
+FONT_SIZE_LEGEND = 18
+
 HATCHES = ['\\\\', '-', '//', '..', '', 'oo', '++', '||', 'XX', 'OO', '\\', '--', '/', '.']
 
 EXPERIMENT_TYPE_LABELS = {
@@ -80,14 +85,28 @@ def load_dataframe(folder_paths):
     return dataframe
 
 
-def plot_metric(dataframe, metric_name, output_path):
+def save_legend_separately(legend_patches, output_path):
+    """Genera un PDF aparte solo con la leyenda, en horizontal (una fila)."""
+    fig_legend = plt.figure(figsize=(max(6, 1.6 * len(legend_patches)), 1.0))
+    fig_legend.legend(handles=legend_patches, ncol=len(legend_patches), fontsize=FONT_SIZE_LEGEND,
+                       loc='center', labelspacing=0.4,
+                       handlelength=1.5, handletextpad=0.5, borderpad=0.4,
+                       frameon=False)
+    fig_legend.savefig(output_path, bbox_inches='tight')
+    plt.close(fig_legend)
+
+
+def plot_metric(dataframe, metric_name, output_path, legend_output_path):
     df = dataframe.loc[dataframe['metric_name'] == metric_name]
 
     p = sns.catplot(data=df, x="prediction", y="metric_value", hue="model", col=COL_DISPERSION,
                      kind="bar", edgecolor='black', row=COL_ENFOQUE, legend=False, height=2.5, aspect=1.5)
     p.fig.set_size_inches(9, 4.5)
     p.set(xlabel=None, ylabel=None)
-    p.set_titles(row_template="Enfoque: {row_name}", col_template="Dispersión: {col_name}", size=10)
+    p.set_titles(row_template="Enfoque: {row_name}", col_template="Dispersión: {col_name}", size=FONT_SIZE_TITLE)
+
+    for axes in p.axes.flat:
+        axes.tick_params(axis='both', labelsize=FONT_SIZE_TICKS)
 
     colors = []
     models_names = list(map(lambda name: name.replace('_', ' ').capitalize(), df['model'].unique()))
@@ -101,10 +120,8 @@ def plot_metric(dataframe, metric_name, output_path):
     legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
                       for i in range(0, len(colors))]
 
+    # La leyenda ya NO se añade a la figura principal
     p.fig.set_constrained_layout(True)
-    p.fig.legend(handles=legend_patches, ncol=1, fontsize=10,
-                 loc='outside center right', labelspacing=0.4,
-                 handlelength=1.5, handletextpad=0.5, borderpad=0.4)
 
     plt.yticks(np.arange(0, 1.1, 0.1))
 
@@ -114,14 +131,26 @@ def plot_metric(dataframe, metric_name, output_path):
     plt.savefig(output_path)
     plt.close()
 
+    # Guardamos la leyenda en un PDF aparte, en horizontal
+    save_legend_separately(legend_patches, legend_output_path)
+
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
+# Escala el tamaño de fuente base de todos los elementos (labels, ticks, etc.)
+sns.set_context("talk", rc={"font.size": FONT_SIZE_TICKS,
+                             "axes.titlesize": FONT_SIZE_TITLE,
+                             "axes.labelsize": FONT_SIZE_TICKS,
+                             "xtick.labelsize": FONT_SIZE_TICKS,
+                             "ytick.labelsize": FONT_SIZE_TICKS,
+                             "legend.fontsize": FONT_SIZE_LEGEND})
 
 os.makedirs('plots', exist_ok=True)
 
 for dataset_type, folder_paths in DATASET_FOLDER_PATHS.items():
     dataframe = load_dataframe(folder_paths)
     output_path = f'plots/f1_{dataset_type}.pdf'
-    plot_metric(dataframe, METRIC, output_path)
+    legend_output_path = f'plots/f1_legend.pdf'
+    plot_metric(dataframe, METRIC, output_path, legend_output_path)
     print(f'Guardado: {output_path}')
+    print(f'Guardado: {legend_output_path}')

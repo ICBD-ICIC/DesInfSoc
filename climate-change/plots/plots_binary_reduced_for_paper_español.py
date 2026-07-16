@@ -74,11 +74,21 @@ def load_dataframe(experiment_type):
     return dataframe
 
 
-def plot_metric(metric_name, output_path):
+def save_legend_separately(legend_patches, output_path):
+    """Genera un PDF aparte solo con la leyenda, en una fila horizontal."""
+    fig_legend = plt.figure(figsize=(max(6, 1.8 * len(legend_patches)), 1.2))
+    fig_legend.legend(handles=legend_patches, ncol=len(legend_patches), fontsize=20,
+                       loc='center', labelspacing=0.4,
+                       handlelength=1.5, handletextpad=0.5, borderpad=0.4,
+                       frameon=False)
+    fig_legend.savefig(output_path, bbox_inches='tight')
+    plt.close(fig_legend)
+
+
+def plot_metric(metric_name, output_path, save_legend=False):
     """Genera la figura para una métrica concreta, con un subplot por cada
-    EXPERIMENT_TYPE (lado a lado, sin espacio entre ellos) y una leyenda
-    compartida a la derecha, usando hatches para distinguir modelos
-    (igual que plot_metric en el script de referencia)."""
+    EXPERIMENT_TYPE (lado a lado, sin espacio entre ellos), usando hatches
+    para distinguir modelos. La leyenda se guarda por separado."""
     fig = plt.figure(figsize=(12, 4))
     spec = gridspec.GridSpec(
         ncols=len(EXPERIMENT_TYPES),
@@ -139,18 +149,13 @@ def plot_metric(metric_name, output_path):
         for i in range(len(colors))
     ]
 
-    fig.legend(
-        handles=legend_patches,
-        loc='center left',
-        bbox_to_anchor=(1.0, 0.5),
-        fontsize=20,
-        frameon=False
-    )
-
     plt.tight_layout(rect=[0, 0, 1, 1])
     plt.subplots_adjust(wspace=0.4)
     plt.savefig(output_path, bbox_inches='tight')
     plt.close()
+
+    if save_legend:
+        save_legend_separately(legend_patches, 'plots/legend.pdf')
 
 
 sns.set_style("whitegrid")
@@ -158,7 +163,7 @@ sns.set_palette("colorblind")
 
 os.makedirs('plots', exist_ok=True)
 
-for METRIC in METRICS:
+for i, METRIC in enumerate(METRICS):
     output_path = f'plots/{METRIC}.pdf'
-    plot_metric(METRIC, output_path)
+    plot_metric(METRIC, output_path, save_legend=(i == 0))
     print(f'Guardado: {output_path}')

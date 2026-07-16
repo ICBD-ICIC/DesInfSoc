@@ -24,6 +24,11 @@ EXPERIMENT_TYPE_LABELS = {
 COL_ENFOQUE = 'Enfoque'
 COL_DISPERSION = 'Dispersión'
 
+# Tamaños de fuente globales (sube estos valores para agrandar aún más el texto)
+FONT_SIZE_TITLE = 14
+FONT_SIZE_TICKS = 14
+FONT_SIZE_LEGEND = 18
+
 
 def comma_formatter(x, pos):
     return f"{x:.1f}".replace('.', ',')
@@ -82,15 +87,38 @@ full_dataframe = paper_experiments(full_dataframe)
 
 sns.set_style("whitegrid")
 sns.set_palette("pastel")
+# Escala el tamaño de fuente base de todos los elementos (labels, ticks, etc.)
+sns.set_context("talk", rc={"font.size": FONT_SIZE_TICKS,
+                             "axes.titlesize": FONT_SIZE_TITLE,
+                             "axes.labelsize": FONT_SIZE_TICKS,
+                             "xtick.labelsize": FONT_SIZE_TICKS,
+                             "ytick.labelsize": FONT_SIZE_TICKS,
+                             "legend.fontsize": FONT_SIZE_LEGEND})
+
+os.makedirs('plots', exist_ok=True)
 
 
-def plot_metric(dataframe, metric_name):
+def save_legend_separately(legend_patches, output_path):
+    """Genera un PDF aparte solo con la leyenda, en horizontal (una fila)."""
+    fig_legend = plt.figure(figsize=(max(6, 1.6 * len(legend_patches)), 1.0))
+    fig_legend.legend(handles=legend_patches, ncol=len(legend_patches), fontsize=FONT_SIZE_LEGEND,
+                       loc='center', labelspacing=0.4,
+                       handlelength=1.5, handletextpad=0.5, borderpad=0.4,
+                       frameon=False)
+    fig_legend.savefig(output_path, bbox_inches='tight')
+    plt.close(fig_legend)
+
+
+def plot_metric(dataframe, metric_name, save_legend=False):
     df = dataframe.loc[dataframe['metric_name'] == metric_name]
 
     p = sns.catplot(data=df, x="prediction", y="metric_value", hue="model", col=COL_DISPERSION,
                      kind="bar", edgecolor='black', row=COL_ENFOQUE, legend=False, height=2.5, aspect=1.5)
     p.set(xlabel=None, ylabel=None)
-    p.set_titles(row_template="Enfoque: {row_name}", col_template="Dispersión: {col_name}", size=10)
+    p.set_titles(row_template="Enfoque: {row_name}", col_template="Dispersión: {col_name}", size=FONT_SIZE_TITLE)
+
+    for axes in p.axes.flat:
+        axes.tick_params(axis='both', labelsize=FONT_SIZE_TICKS)
 
     colors = []
     models_names = list(map(lambda name: name.replace('_', ' ').capitalize(), df['model'].unique()))
@@ -104,10 +132,8 @@ def plot_metric(dataframe, metric_name):
     legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=models_names[i])
                       for i in range(0, len(colors))]
 
-    p.fig.set_constrained_layout(True)  # gestiona automáticamente títulos + leyenda sin solapes
-    leg = p.fig.legend(handles=legend_patches, ncol=1, fontsize=10,
-                        loc='outside center right', labelspacing=0.4,
-                        handlelength=1.5, handletextpad=0.5, borderpad=0.4)
+    # La leyenda ya NO se añade a la figura principal
+    p.fig.set_constrained_layout(True)  # gestiona automáticamente los títulos sin solapes
 
     plt.yticks(np.arange(0, 1.1, 0.1))
 
@@ -115,9 +141,14 @@ def plot_metric(dataframe, metric_name):
         axes.yaxis.set_major_formatter(FuncFormatter(comma_formatter))
 
     output_path = f'plots/{metric_name}.pdf'
-    plt.savefig(output_path)  # sin bbox_inches='tight': constrained_layout ya calcula el encuadre
+    plt.savefig(output_path, bbox_inches='tight')
     plt.close()
 
+    # La leyenda es la misma para todas las métricas (mismos modelos), así que
+    # solo hace falta guardarla una vez como plots/legend.pdf
+    if save_legend:
+        save_legend_separately(legend_patches, 'plots/legend.pdf')
 
-for metric in METRICS:
-    plot_metric(full_dataframe, metric)
+
+for i, metric in enumerate(METRICS):
+    plot_metric(full_dataframe, metric, save_legend=(i == 0))

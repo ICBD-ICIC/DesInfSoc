@@ -21,6 +21,15 @@ METRICS_INFO = {
 
 HATCHES = ['\\\\', '-', '//', '..', '', '++', 'oo', '||', 'XX', 'OO', '\\', '--', '/', '.', '+', 'o', '|', 'X', 'o']
 
+# Tamaños de fuente globales (sube estos valores para agrandar aún más el texto)
+FONT_SIZE_TITLE = 16
+FONT_SIZE_AXIS = 14
+FONT_SIZE_TICKS = 12
+FONT_SIZE_LEGEND = 14
+
+LEGEND_FILENAME = 'feature_selection_legend.pdf'
+
+
 def coma_decimal(x, pos):
     return f'{x:.2f}'.replace('.', ',')
 
@@ -101,7 +110,26 @@ def build_plot_dataframe():
     return dataframe
 
 
-def make_plot(dataframe, metric, title, filename):
+def save_legend_separately(legend_patches, output_path, n_rows=3):
+    """Genera un PDF aparte solo con la leyenda, distribuida en n_rows filas."""
+    import math
+    n_items = len(legend_patches)
+    n_cols = math.ceil(n_items / n_rows)
+
+    # Ancho proporcional a la columna más larga, alto proporcional al número de filas
+    fig_width = max(8, 2.2 * n_cols)
+    fig_height = 0.6 * n_rows + 0.6
+
+    fig_legend = plt.figure(figsize=(fig_width, fig_height))
+    fig_legend.legend(handles=legend_patches, ncol=n_cols, fontsize=FONT_SIZE_LEGEND,
+                       loc='center', labelspacing=0.6,
+                       handlelength=1.5, handletextpad=0.5, borderpad=0.4,
+                       columnspacing=1.2,
+                       frameon=False)
+    fig_legend.savefig(output_path, bbox_inches='tight')
+    plt.close(fig_legend)
+
+def make_plot(dataframe, metric, title, filename, save_legend=False, show_subtitle=False):
     df_metric = dataframe.loc[dataframe['metric_name'] == metric]
 
     for prediction in df_metric['prediction'].unique():
@@ -113,18 +141,24 @@ def make_plot(dataframe, metric, title, filename):
         print(metric, prediction, 'enfoque-solo-accion', df_metric.loc[best_result_idx]['feature'])
 
     sns.set_style("whitegrid")
+    sns.set_context("talk", rc={"font.size": FONT_SIZE_TICKS,
+                                 "axes.titlesize": FONT_SIZE_TITLE,
+                                 "axes.labelsize": FONT_SIZE_AXIS,
+                                 "xtick.labelsize": FONT_SIZE_TICKS,
+                                 "ytick.labelsize": FONT_SIZE_TICKS,
+                                 "legend.fontsize": FONT_SIZE_LEGEND})
 
     p = sns.catplot(data=df_metric, x="prediction", y="metric_value", hue="feature", kind="bar", col='approach',
                     edgecolor='black', legend=False, height=6, aspect=1.1)
     p.set(xlabel=None, ylabel=None)
-    p.set_axis_labels('', title)
-    p.set_titles("{col_name}")
+    p.set_titles("{col_name}", size=FONT_SIZE_TITLE)
 
     colors = []
     features = df_metric['feature'].unique()
 
     for axes in p.axes.flat:
         axes.set_title(axes.get_title())
+        axes.tick_params(axis='both', labelsize=FONT_SIZE_TICKS)
         axes.yaxis.set_major_formatter(FuncFormatter(coma_decimal))
         for bar in axes.patches:
             bar_color = bar.get_facecolor()
@@ -134,19 +168,22 @@ def make_plot(dataframe, metric, title, filename):
     legend_patches = [Patch(facecolor=colors[i], edgecolor='black', hatch=HATCHES[i], label=features[i])
                       for i in range(0, len(colors))]
 
-    p.fig.legend(handles=legend_patches, loc='lower center', ncols=3, fontsize=10,
-                 bbox_to_anchor=(0.5, -0.08), frameon=True)
-
-    plt.suptitle('Dispersión: 20 | Palabras presentes: Falso | Balanceado: Verdadero', size=16)
-    plt.subplots_adjust(top=0.88, bottom=0.18)
+    if show_subtitle:
+        plt.suptitle('Dispersión: 20 | Palabras presentes: Falso | Balanceado: Verdadero', size=FONT_SIZE_TITLE)
+        plt.subplots_adjust(top=0.88, bottom=0.1)
+    else:
+        plt.subplots_adjust(top=0.95, bottom=0.1)
 
     os.makedirs(PLOTS_FOLDER, exist_ok=True)
     output_path = os.path.join(PLOTS_FOLDER, filename)
     plt.savefig(output_path, format='pdf', bbox_inches='tight')
     plt.close()
 
+    if save_legend:
+        legend_output_path = os.path.join(PLOTS_FOLDER, LEGEND_FILENAME)
+        save_legend_separately(legend_patches, legend_output_path)
 
 dataframe = build_plot_dataframe()
 
-for metric, info in METRICS_INFO.items():
-    make_plot(dataframe, metric, info['title'], info['filename'])
+for i, (metric, info) in enumerate(METRICS_INFO.items()):
+    make_plot(dataframe, metric, info['title'], info['filename'], save_legend=(i == 0), show_subtitle=(i == 0))
